@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Camera, Trophy, Gift, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import AdminButton from './AdminButton';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -34,6 +35,7 @@ export default function Navbar() {
           </Link>
         );
       })}
+      <AdminButton />
     </nav>
   );
 }
