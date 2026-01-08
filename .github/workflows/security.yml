@@ -1,0 +1,36 @@
+name: Security Audit
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly audit
+
+jobs:
+  secrets-scan:
+    name: Secret Scan (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  dependency-scan:
+    name: Vulnerability Scan (Trivy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          ignore-unfixed: true
+          format: 'table'
+          exit-code: '1'
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
