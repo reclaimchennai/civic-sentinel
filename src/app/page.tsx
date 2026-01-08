@@ -5,6 +5,7 @@ import SmartUploader from '@/components/SmartUploader';
 import CategoryGrid from '@/components/CategoryGrid';
 import { Button } from '@/components/ui/button';
 import { Send, CheckCircle } from 'lucide-react';
+import UserHeader from '@/components/UserHeader';
 
 export default function Home() {
   const [reportData, setReportData] = useState<{
@@ -44,12 +45,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
-      <header className="py-8">
-        <h1 className="text-2xl font-black tracking-tight text-white uppercase italic">
-          Chennai <span className="text-zinc-500">Sentinel</span>
-        </h1>
-        <p className="text-zinc-400 text-sm">Snap. Click. Done.</p>
-      </header>
+      <UserHeader />
 
       <div className="space-y-8">
         <section>
