@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { useSession, signOut } from "next-auth/react";
+import { useSession, signOut, signIn } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from '@/components/ui/button';
-import { User, LogOut, Settings } from 'lucide-react';
+import { User, LogOut, Settings, PlayCircle } from 'lucide-react';
 
 export default function UserHeader() {
   const { data: session, status } = useSession();
@@ -67,9 +67,20 @@ export default function UserHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button asChild variant="secondary" size="sm" className="rounded-full">
-            <Link href="/login">Sign In</Link>
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="rounded-full border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white hidden sm:flex"
+              onClick={() => signIn("credentials", { username: "demo", callbackUrl: "/profile" })}
+            >
+              <PlayCircle className="w-4 h-4 mr-2 text-yellow-500" />
+              Try Demo
+            </Button>
+            <Button asChild variant="secondary" size="sm" className="rounded-full">
+              <Link href="/login">Sign In</Link>
+            </Button>
+          </div>
         )}
       </div>
     </header>
