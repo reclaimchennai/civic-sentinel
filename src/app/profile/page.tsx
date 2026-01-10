@@ -5,9 +5,9 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Trophy, MapPin, Award, Star } from 'lucide-react';
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -59,7 +59,7 @@ export default function ProfilePage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Progress value={(userStats.points / userStats.nextLevelPoints) * 100} className="h-2 bg-zinc-800" />
+            <XPProgressBar current={userStats.points} total={userStats.nextLevelPoints} />
             <p className="text-xs text-zinc-500 mt-2 text-center">550 XP to Level {userStats.level + 1}</p>
           </CardContent>
         </Card>
@@ -109,5 +109,53 @@ export default function ProfilePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+function XPProgressBar({ current, total }: { current: number, total: number }) {
+  const percentage = Math.min((current / total) * 100, 100);
+  
+  return (
+    <div className="relative w-full h-4 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
+      {/* Background Pulse Glow */}
+      <motion.div 
+        className="absolute inset-0 bg-[#FFD700]/20 blur-md"
+        animate={{ opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+      />
+
+      {/* The Bar Itself */}
+      <motion.div 
+        className="h-full bg-[#FFD700] relative overflow-hidden"
+        initial={{ width: 0 }}
+        animate={{ width: `${percentage}%` }}
+        transition={{ duration: 1, ease: "easeOut" }}
+      >
+        {/* Shine Effect */}
+        <motion.div 
+          className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg]"
+          animate={{ left: ["-100%", "200%"] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+        />
+        
+        {/* Sparks */}
+        <div className="absolute inset-0 w-full h-full">
+           {[...Array(5)].map((_, i) => (
+             <motion.div
+               key={i}
+               className="absolute w-1 h-1 bg-yellow-100 rounded-full"
+               initial={{ y: 16, x: Math.random() * 100 + "%", opacity: 0 }}
+               animate={{ y: -10, opacity: [0, 1, 0] }}
+               transition={{ 
+                 duration: 0.8 + Math.random() * 0.5, 
+                 repeat: Infinity, 
+                 delay: Math.random() * 2,
+                 ease: "easeOut" 
+               }}
+             />
+           ))}
+        </div>
+      </motion.div>
+    </div>
   );
 }
