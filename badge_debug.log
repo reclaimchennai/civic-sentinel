@@ -1,0 +1,79 @@
+Note: Unnecessary use of -X or --request, POST is already inferred.
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying 142.251.30.95:443...
+*   Trying [2a00:1450:4009:c13::5f]:443...
+* Immediate connect fail for 2a00:1450:4009:c13::5f: Network is unreachable
+* Connected to generativelanguage.googleapis.com (142.251.30.95) port 443 (#0)
+* ALPN: offers h2,http/1.1
+} [5 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Client hello (1):
+} [512 bytes data]
+*  CAfile: /etc/ssl/certs/ca-certificates.crt
+*  CApath: /etc/ssl/certs
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Server hello (2):
+{ [122 bytes data]
+* TLSv1.3 (IN), TLS handshake, Encrypted Extensions (8):
+{ [15 bytes data]
+* TLSv1.3 (IN), TLS handshake, Certificate (11):
+{ [4208 bytes data]
+* TLSv1.3 (IN), TLS handshake, CERT verify (15):
+{ [80 bytes data]
+* TLSv1.3 (IN), TLS handshake, Finished (20):
+{ [52 bytes data]
+* TLSv1.3 (OUT), TLS change cipher, Change cipher spec (1):
+} [1 bytes data]
+* TLSv1.3 (OUT), TLS handshake, Finished (20):
+} [52 bytes data]
+* SSL connection using TLSv1.3 / TLS_AES_256_GCM_SHA384
+* ALPN: server accepted h2
+* Server certificate:
+*  subject: CN=upload.video.google.com
+*  start date: Dec  3 15:53:13 2025 GMT
+*  expire date: Feb 25 15:53:12 2026 GMT
+*  subjectAltName: host "generativelanguage.googleapis.com" matched cert's "*.googleapis.com"
+*  issuer: C=US; O=Google Trust Services; CN=WR2
+*  SSL certificate verify ok.
+} [5 bytes data]
+* using HTTP/2
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0* h2h3 [:method: POST]
+* h2h3 [:path: /v1beta/models/imagen-3.0-generate-001:generateImages?key=AIzaSyCsoHhivsTuiLUMtxUS8vymKL3VRkrm8nY]
+* h2h3 [:scheme: https]
+* h2h3 [:authority: generativelanguage.googleapis.com]
+* h2h3 [user-agent: curl/7.88.1]
+* h2h3 [accept: */*]
+* h2h3 [content-type: application/json]
+* h2h3 [content-length: 156]
+* Using Stream ID: 1 (easy handle 0x564b2cf457a0)
+} [5 bytes data]
+> POST /v1beta/models/imagen-3.0-generate-001:generateImages?key=AIzaSyCsoHhivsTuiLUMtxUS8vymKL3VRkrm8nY HTTP/2
+> Host: generativelanguage.googleapis.com
+> user-agent: curl/7.88.1
+> accept: */*
+> content-type: application/json
+> content-length: 156
+> 
+} [5 bytes data]
+* We are completely uploaded and fine
+{ [5 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [282 bytes data]
+* TLSv1.3 (IN), TLS handshake, Newsession Ticket (4):
+{ [282 bytes data]
+* old SSL session ID is stale, removing
+{ [5 bytes data]
+< HTTP/2 404 
+< content-type: text/html
+< date: Sat, 10 Jan 2026 05:30:40 GMT
+< server: scaffolding on HTTPServer2
+< content-length: 0
+< x-xss-protection: 0
+< x-frame-options: SAMEORIGIN
+< x-content-type-options: nosniff
+< server-timing: gfet4t7; dur=9
+< alt-svc: h3=":443"; ma=2592000,h3-29=":443"; ma=2592000
+< 
+{ [5 bytes data]
+100   156    0     0  100   156      0    184 --:--:-- --:--:-- --:--:--   184
+* Connection #0 to host generativelanguage.googleapis.com left intact

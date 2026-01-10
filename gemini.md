@@ -96,6 +96,23 @@
 * **Logic:** Query DB for top user in *current detected zone*.
 * **Display:** "Current Mayor of [Zone]: @User".
 
+### UX Workflow 4: Admin Moderation (Added v1.1.0)
+**Page:** `/app/admin/page.tsx`
+* **Access:** Restricted via Middleware & `AdminButton`.
+* **UI:** Tinder-style "Swipe" Interface.
+    * Swipe **Right**: Approve Report.
+    * Swipe **Left**: Reject Report.
+* **History:** Drawer menu to view past actions and Undo.
+
+### UX Workflow 5: User Authentication (Added v1.1.0)
+**Feature:** NextAuth.js Integration
+* **Providers:** Google, GitHub, Twitter, Apple, Facebook, Reddit, Demo User.
+* **Flow:** 
+    * User clicks "Sign In" or "Try Demo".
+    * Redirected to Provider.
+    * Callback handles session creation (JWT).
+* **Profile:** `/app/profile/page.tsx` shows Stats, Badges, Level.
+
 ## 6. Backend Services (Python)
 **File:** `/backend/twitter_bot.py`
 **Dependencies:** `tweepy`, `python-dotenv`.
@@ -117,8 +134,15 @@
 4.  **UI Components:** Build `SmartUploader`, `CategoryGrid`, `RewardCard`.
 5.  **Pages:** Implement Home, Redeem, Leaderboard.
 6.  **Script:** Write the Python bot.
+7.  **Admin:** Implement Swipe UI for moderation.
+8.  **Auth:** Implement NextAuth with Demo Mode.
+9.  **Docs:** Generate Industry Standard Documentation.
 
 ## 8. Asset Instructions
 * Use `lucide-react` for all icons (e.g., `TrafficCone`, `Trash2`, `Zap`).
 * For placeholder images (Rewards/Reports), use standard placeholders (e.g., `https://placehold.co/600x400?text=Reward`).
 * Ensure the UI uses a "Zinc" or "Slate" dark theme from Tailwind for that modern, sleek look.
+
+## 9. Badges & Assets (Added)
+* **Badges:** List defined in `badges.json`.
+* **Generation:** Instructions in `BADGE_GENERATION.md` for `nanobanana` extension.
