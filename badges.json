@@ -1,0 +1,79 @@
+[
+  {
+    "id": "rookie_sentinel",
+    "name": "Rookie Sentinel",
+    "description": "Awarded for submitting your very first civic report.",
+    "visual_style": "Bronze shield with a camera lens center.",
+    "prompt": "icon of a bronze shield with a camera lens in the center, minimal vector art, white background, high contrast, civic tech aesthetic"
+  },
+  {
+    "id": "verified_voice",
+    "name": "Verified Voice",
+    "description": "Awarded when 5 of your reports are officially approved by authorities.",
+    "visual_style": "Silver microphone with a blue checkmark.",
+    "prompt": "icon of a silver microphone with a glowing blue checkmark badge attached to it, minimal vector art, white background, modern style"
+  },
+  {
+    "id": "pothole_paladin",
+    "name": "Pothole Paladin",
+    "description": "Awarded for reporting 10 road or footpath issues.",
+    "visual_style": "Golden shovel crossed with a pickaxe.",
+    "prompt": "icon of a golden shovel crossed with a pickaxe over a stylized road patch, minimal vector art, white background, gamification badge style"
+  },
+  {
+    "id": "garbage_guardian",
+    "name": "Garbage Guardian",
+    "description": "Awarded for reporting 10 waste management issues.",
+    "visual_style": "Green recycling shield with a leaf.",
+    "prompt": "icon of a green shield with a white recycling symbol and a leaf on top, minimal vector art, white background, eco-friendly aesthetic"
+  },
+  {
+    "id": "traffic_tamer",
+    "name": "Traffic Tamer",
+    "description": "Awarded for reporting 10 traffic violations.",
+    "visual_style": "Orange traffic cone with a sheriff badge.",
+    "prompt": "icon of an orange traffic cone wearing a silver sheriff star badge, minimal vector art, white background, bold colors"
+  },
+  {
+    "id": "night_owl",
+    "name": "Night Owl",
+    "description": "Awarded for submitting a report between 11 PM and 5 AM.",
+    "visual_style": "Moon with a surveillance eye.",
+    "prompt": "icon of a crescent moon with a stylized eye integrated into the curve, dark blue and gold colors, minimal vector art, white background"
+  },
+  {
+    "id": "early_bird",
+    "name": "Early Bird",
+    "description": "Awarded for submitting a report between 5 AM and 8 AM.",
+    "visual_style": "Rising sun behind a city skyline.",
+    "prompt": "icon of a rising sun behind a simple silhouette of city buildings, warm orange and yellow colors, minimal vector art, white background"
+  },
+  {
+    "id": "streak_master_7",
+    "name": "Week Warrior",
+    "description": "Awarded for submitting at least one report for 7 consecutive days.",
+    "visual_style": "Burning flame with the number 7.",
+    "prompt": "icon of a burning orange flame with the number 7 inside it, minimal vector art, white background, dynamic style"
+  },
+  {
+    "id": "zone_hero",
+    "name": "Zone Hero",
+    "description": "Awarded for being the top reporter in a specific zone for the month.",
+    "visual_style": "Gold medal with a map pin.",
+    "prompt": "icon of a gold medal hanging from a ribbon with a red map pin in the center of the medal, minimal vector art, white background"
+  },
+  {
+    "id": "shutterbug",
+    "name": "Shutterbug",
+    "description": "Awarded for reports with high-resolution, clear imagery.",
+    "visual_style": "Camera aperture iris in rainbow colors.",
+    "prompt": "icon of a camera aperture iris made of colorful segments, minimal vector art, white background, artistic style"
+  },
+  {
+    "id": "civic_legend",
+    "name": "Civic Legend",
+    "description": "The ultimate honor. Awarded for 100 approved reports.",
+    "visual_style": "Platinum crown with a city emblem.",
+    "prompt": "icon of a platinum crown with a small city building emblem in the center jewel, luxury vector art, white background, premium feel"
+  }
+]

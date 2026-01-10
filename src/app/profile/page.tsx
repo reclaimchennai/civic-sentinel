@@ -1,35 +1,33 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trophy, MapPin, Award, Star } from 'lucide-react';
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
+  const [userStats, setUserStats] = useState<any>(null);
 
-  if (status === "unauthenticated") {
-    redirect("/login");
-  }
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+    if (status === "authenticated") {
+      fetch('/api/user/profile')
+        .then(res => res.json())
+        .then(data => setUserStats(data));
+    }
+  }, [status, router]);
 
-  if (status === "loading") {
+  if (status === "loading" || !userStats) {
     return <div className="min-h-screen bg-black flex items-center justify-center text-zinc-500">Loading...</div>;
   }
-
-  // Mock User Stats
-  const userStats = {
-    level: 5,
-    points: 450,
-    nextLevelPoints: 1000,
-    reports: 12,
-    approved: 10,
-    badges: ['Early Adopter', 'Pothole Patrol', 'Night Owl'],
-    mayorship: 'T. Nagar'
-  };
 
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
@@ -98,12 +96,14 @@ export default function ProfilePage() {
         {/* Badges */}
         <div>
           <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">Badges</h3>
-          <div className="flex flex-wrap gap-2">
-            {userStats.badges.map(badge => (
-              <Badge key={badge} variant="outline" className="border-zinc-700 bg-zinc-900/50 py-2 px-3">
-                <Award className="w-3 h-3 mr-2 text-yellow-500" />
-                {badge}
-              </Badge>
+          <div className="flex flex-wrap gap-4">
+            {userStats.badges.map((badge: any) => (
+              <div key={badge.name} className="flex flex-col items-center space-y-1">
+                <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 p-2 flex items-center justify-center hover:border-zinc-500 transition-all cursor-help" title={badge.name}>
+                  <img src={badge.image} alt={badge.name} className="w-full h-full object-contain" />
+                </div>
+                <span className="text-[10px] text-zinc-500 font-bold uppercase">{badge.name}</span>
+              </div>
             ))}
           </div>
         </div>
