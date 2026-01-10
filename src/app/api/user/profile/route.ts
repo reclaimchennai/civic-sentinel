@@ -33,7 +33,14 @@ export async function GET(req: Request) {
       nextLevelPoints: 1000,
       reports: 12,
       approved: 10,
-      badges: ['Early Adopter', 'Pothole Patrol', 'Night Owl'],
+      badges: [
+        { name: 'Rookie Sentinel', image: '/badges/Rookie Sentinel_nobg.png' },
+        { name: 'Pothole Paladin', image: '/badges/pothole_paladin_nobg.png' },
+        { name: 'Night Owl', image: '/badges/night_owl_nobg.png' },
+        { name: '7-Day Streak', image: '/badges/7-day_streak_nobg.png' },
+        { name: 'Zone Hero', image: '/badges/zone_hero_nobg.png' },
+        { name: 'Verified Voice', image: '/badges/verified voice_nobg.png' }
+      ],
       mayorship: 'T. Nagar',
       bio: "Just a concerned citizen trying to fix the city, one pothole at a time."
     };
