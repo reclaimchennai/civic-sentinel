@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { Shield } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useSession } from 'next-auth/react';
 
 export default function AdminButton() {
-  // In a real app, check auth/role here.
-  // For prototype, we'll just show it or maybe toggle it.
-  const isAdmin = true; 
+  const { data: session } = useSession();
+  
+  // RBAC Check: Only show if user has 'admin' role
+  const isAdmin = session?.user?.role === 'admin';
 
   if (!isAdmin) return null;
 
