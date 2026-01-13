@@ -20,10 +20,10 @@ interface Report {
 
 // Initial Mock Data
 const initialReports: Report[] = [
-  { id: '1', imageUrl: 'https://placehold.co/600x800?text=Violation+1', zone: 'T. Nagar', category: 'No Parking', description: 'Car parked on zebra crossing.', status: 'pending' },
-  { id: '2', imageUrl: 'https://placehold.co/600x800?text=Violation+2', zone: 'Adyar', category: 'Garbage', description: 'Overflowing bin near bus stop.', status: 'pending' },
-  { id: '3', imageUrl: 'https://placehold.co/600x800?text=Violation+3', zone: 'Anna Nagar', category: 'Pothole', description: 'Deep pothole in main road.', status: 'pending' },
-  { id: '4', imageUrl: 'https://placehold.co/600x800?text=Violation+4', zone: 'Velachery', category: 'Water', description: 'Stagnant water near school.', status: 'pending' },
+  { id: '1', imageUrl: '/placeholder_images_violations/car_parked_xing.jpg', zone: 'T. Nagar', category: 'No Parking', description: 'Car parked on zebra crossing.', status: 'pending' },
+  { id: '2', imageUrl: '/placeholder_images_violations/overflowing_garbage.png', zone: 'Adyar', category: 'Garbage', description: 'Overflowing bin near bus stop.', status: 'pending' },
+  { id: '3', imageUrl: '/placeholder_images_violations/deep_pothole.png', zone: 'Anna Nagar', category: 'Pothole', description: 'Deep pothole in main road.', status: 'pending' },
+  { id: '4', imageUrl: '/placeholder_images_violations/water_stangant.jpg', zone: 'Velachery', category: 'Water', description: 'Stagnant water near school.', status: 'pending' },
 ];
 
 export default function AdminPage() {

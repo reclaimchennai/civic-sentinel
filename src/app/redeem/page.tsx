@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Trophy, Gift, ShoppingBag } from 'lucide-react';
 
 const rewards = [
-  { id: 1, name: '"Mayor of Chennai" Cap', cost: 500, type: 'merch', brand: 'Chennai Corp', image: 'https://placehold.co/600x400?text=Mayor+Cap' },
-  { id: 2, name: '"Civic Sentinel" Badge', cost: 200, type: 'merch', brand: 'Official', image: 'https://placehold.co/600x400?text=Civic+Badge' },
-  { id: 3, name: 'A2B ₹100 Off Coupon', cost: 300, type: 'coupon', brand: 'A2B', image: 'https://placehold.co/600x400?text=A2B+Coupon' },
-  { id: 4, name: 'Murugan Idli Free Drink', cost: 250, type: 'coupon', brand: 'Murugan Idli', image: 'https://placehold.co/600x400?text=Murugan+Idli' },
-  { id: 5, name: 'Saravana Bhavan Coffee', cost: 150, type: 'coupon', brand: 'Saravana Bhavan', image: 'https://placehold.co/600x400?text=Coffee' },
+  { id: 1, name: '"Mayor of Chennai" Cap', cost: 500, type: 'merch', brand: 'Chennai Corp', image: '/placeholder_images_coupons/mayor_of_chennai_cap.png' },
+  { id: 2, name: '"Civic Sentinel" Badge', cost: 200, type: 'merch', brand: 'Official', image: '/placeholder_images_coupons/civic_sentinel_badge.png' },
+  { id: 3, name: 'A2B ₹100 Off Coupon', cost: 300, type: 'coupon', brand: 'A2B', image: '/placeholder_images_coupons/a2b_coupon.png' },
+  { id: 4, name: 'Murugan Idli Free Drink', cost: 250, type: 'coupon', brand: 'Murugan Idli', image: '/placeholder_images_coupons/Murugan_idly.jpg' },
+  { id: 5, name: 'Saravana Bhavan Coffee', cost: 150, type: 'coupon', brand: 'Saravana Bhavan', image: '/placeholder_images_coupons/saravana_bhavan_coffee.png' },
 ];
 
 export default function RedeemPage() {
