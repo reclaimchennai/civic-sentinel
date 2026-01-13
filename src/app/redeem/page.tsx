@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import { useSession } from "next-auth/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,11 @@ const rewards = [
 ];
 
 export default function RedeemPage() {
-  const userPoints = 450; // Mock
+  const { data: session, status } = useSession();
+  
+  // Dynamic points calculation
+  // In a real app, this would come from a DB or the session
+  const userPoints = status === "authenticated" && session?.user?.id === "demo-user-001" ? 450 : 0;
 
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
@@ -25,9 +30,11 @@ export default function RedeemPage() {
           <h1 className="text-2xl font-black tracking-tight uppercase italic">Redeem</h1>
           <p className="text-zinc-400 text-sm">Your rewards for a better city.</p>
         </div>
-        <div className="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-2xl flex items-center space-x-2">
-          <span className="text-xl font-bold">🪙 {userPoints}</span>
-        </div>
+        {status === "authenticated" && (
+          <div className="bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-2xl flex items-center space-x-2 animate-in fade-in zoom-in duration-300">
+            <span className="text-xl font-bold">🪙 {userPoints}</span>
+          </div>
+        )}
       </header>
 
       <Tabs defaultValue="all" className="w-full">

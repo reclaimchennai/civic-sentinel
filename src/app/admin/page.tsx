@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Check, X, Menu, MapPin, Undo2 } from 'lucide-react';
 import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 // Mock Data Type
 interface Report {
@@ -27,8 +29,22 @@ const initialReports: Report[] = [
 ];
 
 export default function AdminPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [reports, setReports] = useState<Report[]>(initialReports);
   const [history, setHistory] = useState<Report[]>([]);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated" && session?.user?.role !== "admin") {
+      router.push("/");
+    }
+  }, [status, session, router]);
+
+  if (status === "loading" || status === "unauthenticated" || (session?.user?.role !== "admin")) {
+    return <div className="min-h-screen bg-black flex items-center justify-center text-zinc-500">Loading...</div>;
+  }
 
   // We only care about the first pending report for the swipe card
   const pendingReports = reports.filter(r => r.status === 'pending');
