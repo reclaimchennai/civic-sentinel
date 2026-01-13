@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
+    <main className="min-h-screen bg-black text-white p-6 pb-40 max-w-md mx-auto">
       <UserHeader />
 
       <div className="space-y-8">
@@ -63,18 +63,34 @@ export default function Home() {
           </section>
         )}
 
-        {reportData.subCategory && (
-          <div className="fixed bottom-6 left-6 right-6 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-500">
-            <Button 
-              className="w-full h-16 bg-white text-black hover:bg-zinc-200 text-lg font-bold rounded-2xl shadow-2xl shadow-white/10"
-              onClick={handleSubmit}
-            >
-              <Send className="w-5 h-5 mr-2" />
-              File {reportData.subCategory}
-            </Button>
-          </div>
-        )}
-      </div>
-    </main>
-  );
-}
+                {reportData.subCategory && (
+
+                  <div className="fixed bottom-24 left-6 right-6 max-w-md mx-auto animate-in fade-in slide-in-from-bottom-8 duration-500 z-40">
+
+                    <Button 
+
+                      className="w-full h-16 bg-white text-black hover:bg-zinc-200 text-lg font-bold rounded-2xl shadow-2xl shadow-white/10"
+
+                      onClick={handleSubmit}
+
+                    >
+
+                      <Send className="w-5 h-5 mr-2" />
+
+                      File {reportData.subCategory}
+
+                    </Button>
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </main>
+
+          );
+
+        }
+
+        
