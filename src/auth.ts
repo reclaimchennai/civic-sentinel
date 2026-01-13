@@ -27,6 +27,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: "CivicHero_Demo",
           email: "demo@chennaicivic.com",
           image: "https://placehold.co/400x400/png?text=Demo",
+          role: "admin", // RBAC: Demo user is Admin
         }
       }
     })
@@ -42,12 +43,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
+        session.user.role = token.role as string; // Pass role to session
       }
       return session;
     },
     async jwt({ token, user }) {
       if (user) {
         token.sub = user.id;
+        token.role = (user as any).role; // Store role in token
       }
       return token;
     }
