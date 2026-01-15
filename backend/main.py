@@ -21,7 +21,9 @@ class ViolationResponse(BaseModel):
 @app.post("/api/v1/report", response_model=ViolationResponse)
 async def report_violation(
     file: UploadFile = File(...),
-    violation_type_id: int = Form(...)
+    violation_type_id: int = Form(...),
+    lat: Optional[float] = Form(None),
+    lng: Optional[float] = Form(None)
 ):
     try:
         # 1. Save uploaded file temporarily
@@ -29,18 +31,25 @@ async def report_violation(
         with open(file_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        # 2. Extract EXIF Data
-        exif_data = extract_exif_data(file_path)
-        if not exif_data:
-            os.remove(file_path)
-            return ViolationResponse(status="error", message="No EXIF metadata found in image. GPS required.")
+        # 2. Determine Location (Form Data > Backend EXIF)
+        timestamp = None
         
-        lat, lng, timestamp = exif_data
-        print(f"Extracted: Lat={lat}, Lng={lng}, Time={timestamp}")
+        # If client provided coordinates, use them (trusting client for prototype, 
+        # or assuming client read valid EXIF that server couldn't)
+        if lat is None or lng is None:
+            # Fallback to Backend EXIF extraction
+            exif_data = extract_exif_data(file_path)
+            if exif_data:
+                lat, lng, timestamp = exif_data
         
-        if not lat or not lng:
+        if lat is None or lng is None:
              os.remove(file_path)
-             return ViolationResponse(status="error", message="No GPS coordinates found in image.")
+             return ViolationResponse(status="error", message="No GPS coordinates found in image. Please use a photo with valid GPS data.")
+
+        # Default timestamp if not found
+        if not timestamp:
+            from datetime import datetime
+            timestamp = datetime.now()
 
         # 3. GCC Boundary Check
         in_gcc, ward, zone_no, zone_name = is_in_gcc_boundary(lat, lng)

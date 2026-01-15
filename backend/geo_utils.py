@@ -1,4 +1,5 @@
 import piexif
+from PIL import Image, ExifTags
 from datetime import datetime
 import geopandas as gpd
 from shapely.geometry import Point
@@ -16,50 +17,92 @@ LOCATIONIQ_KEY = os.getenv("LOCATIONIQ_API_KEY")
 # Load mapping once
 try:
     ward_mapping = pd.read_csv(MAPPING_PATH)
-    # Ensure WARD_NO is string to match GeoJSON 'name' if needed, or int
-    # GeoJSON 'name' is likely string "168". CSV is likely int.
-    # Let's standardize on string.
     ward_mapping['WARD_NO'] = ward_mapping['WARD_NO'].astype(str)
 except Exception as e:
     print(f"Mapping Load Error: {e}")
     ward_mapping = pd.DataFrame()
 
+def get_decimal_from_dms(dms, ref):
+    try:
+        degrees = dms[0]
+        minutes = dms[1]
+        seconds = dms[2]
+        
+        # Handle cases where values might be Tuble(num, den) from some libraries, 
+        # though Pillow usually gives float/int if already processed, 
+        # or IFDRational. Let's assume they are numbers.
+        
+        decimal = float(degrees) + (float(minutes) / 60.0) + (float(seconds) / 3600.0)
+        
+        if ref in ['S', 'W']:
+            decimal = -decimal
+            
+        return decimal
+    except Exception as e:
+        print(f"DMS Conversion Error: {e} | Val: {dms}")
+        return float('nan')
+
 def extract_exif_data(image_path):
     try:
-        exif_dict = piexif.load(image_path)
+        image = Image.open(image_path)
+        exif_data = image._getexif()
         
-        # GPS
-        gps = exif_dict.get("GPS")
-        if not gps:
+        if not exif_data:
+            print("No EXIF data found in image via Pillow.")
             return None
-            
-        def convert_to_degrees(value):
-            d = value[0][0] / value[0][1]
-            m = value[1][0] / value[1][1]
-            s = value[2][0] / value[2][1]
-            return d + (m / 60.0) + (s / 3600.0)
 
-        lat_raw = gps.get(piexif.GPSIFD.GPSLatitude)
-        lng_raw = gps.get(piexif.GPSIFD.GPSLongitude)
+        # Map EXIF tags to names
+        exif = {
+            ExifTags.TAGS[k]: v
+            for k, v in exif_data.items()
+            if k in ExifTags.TAGS
+        }
         
-        if not lat_raw or not lng_raw:
+        # Extract GPS Info
+        gps_info = exif.get('GPSInfo')
+        if not gps_info:
+            print("No GPSInfo tag found.")
             return None
             
-        lat = convert_to_degrees(lat_raw)
-        lng = convert_to_degrees(lng_raw)
+        print(f"RAW GPS INFO: {gps_info}")
+
+        # Parse GPS
+        # 1: LatitudeRef, 2: Latitude, 3: LongitudeRef, 4: Longitude
+        lat_ref = gps_info.get(1)
+        lat_dms = gps_info.get(2)
+        lng_ref = gps_info.get(3)
+        lng_dms = gps_info.get(4)
         
-        # Timestamp
-        exif_ifd = exif_dict.get("Exif")
-        date_str = exif_ifd.get(piexif.ExifIFD.DateTimeOriginal)
+        if not (lat_dms and lng_dms):
+            print("Incomplete GPS data: Missing Lat/Lng values.")
+            return None
+            
+        # Default refs if missing (assume N/E for Chennai context if desperate, but better to fail safe)
+        lat_ref = lat_ref or 'N'
+        lng_ref = lng_ref or 'E'
+            
+        lat = get_decimal_from_dms(lat_dms, lat_ref)
+        lng = get_decimal_from_dms(lng_dms, lng_ref)
+        
+        # Check for NaN or Zero
+        if lat != lat or lng != lng or (lat == 0 and lng == 0):
+             print(f"Invalid Coordinates extracted: {lat}, {lng}")
+             return None
+        
+        # Extract Timestamp
+        date_str = exif.get('DateTimeOriginal')
         if date_str:
-            timestamp = datetime.strptime(date_str.decode("utf-8"), "%Y:%m:%d %H:%M:%S")
+            try:
+                timestamp = datetime.strptime(date_str, "%Y:%m:%d %H:%M:%S")
+            except ValueError:
+                timestamp = datetime.now()
         else:
             timestamp = datetime.now()
 
         return lat, lng, timestamp
 
     except Exception as e:
-        print(f"EXIF Error: {e}")
+        print(f"EXIF Extraction Error: {e}")
         return None
 
 def is_in_gcc_boundary(lat, lng):
