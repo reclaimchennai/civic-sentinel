@@ -36,15 +36,18 @@ async def report_violation(
             return ViolationResponse(status="error", message="No EXIF metadata found in image. GPS required.")
         
         lat, lng, timestamp = exif_data
+        print(f"Extracted: Lat={lat}, Lng={lng}, Time={timestamp}")
         
         if not lat or not lng:
              os.remove(file_path)
              return ViolationResponse(status="error", message="No GPS coordinates found in image.")
 
         # 3. GCC Boundary Check
-        if not is_in_gcc_boundary(lat, lng):
+        in_gcc, ward, zone_no, zone_name = is_in_gcc_boundary(lat, lng)
+        print(f"Is in GCC: {in_gcc}, Ward: {ward}, Zone: {zone_no} ({zone_name})")
+        if not in_gcc:
             os.remove(file_path)
-            return ViolationResponse(status="error", message="Location is outside Greater Chennai Corporation limits.")
+            return ViolationResponse(status="error", message=f"Location ({lat}, {lng}) is outside Greater Chennai Corporation limits.")
 
         # 4. Reverse Geocoding
         area = reverse_geocode(lat, lng)
@@ -56,7 +59,10 @@ async def report_violation(
             lng=lng,
             timestamp=timestamp,
             violation_type_id=violation_type_id,
-            area=area
+            area=area,
+            ward=ward,
+            zone_number=zone_no,
+            zone_name=zone_name
         )
 
         return ViolationResponse(
@@ -65,6 +71,9 @@ async def report_violation(
             data={
                 "report_id": str(report_id),
                 "area": area,
+                "ward": ward,
+                "zone_number": zone_no,
+                "zone_name": zone_name,
                 "lat": lat, 
                 "lng": lng
             }

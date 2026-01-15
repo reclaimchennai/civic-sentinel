@@ -9,6 +9,9 @@ interface Location {
   lat: number;
   lng: number;
   zone?: string;
+  ward?: string;
+  zone_number?: number;
+  zone_name?: string;
 }
 
 export default function SmartUploader({ onUpload }: { onUpload: (data: { image: File; location: Location }) => void }) {
@@ -46,7 +49,10 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
         const loc = { 
           lat: result.data.lat, 
           lng: result.data.lng, 
-          zone: result.data.area 
+          zone: result.data.area,
+          ward: result.data.ward,
+          zone_number: result.data.zone_number,
+          zone_name: result.data.zone_name
         };
         setLocation(loc);
         onUpload({ image: file, location: loc });
@@ -97,10 +103,24 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
           </div>
           
           {location && (
-            <div className="flex items-center space-x-2 text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-900/30">
-              <MapPin className="w-5 h-5" />
-              <span className="text-sm font-medium">📍 {location.zone} Locked</span>
-              <CheckCircle2 className="w-4 h-4 ml-auto" />
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center space-x-2 text-green-400 bg-green-900/20 p-3 rounded-lg border border-green-900/30">
+                <MapPin className="w-5 h-5" />
+                <span className="text-sm font-medium">📍 {location.zone} Locked</span>
+                <CheckCircle2 className="w-4 h-4 ml-auto" />
+              </div>
+              <div className="grid grid-cols-2 gap-1">
+                {location.ward && (
+                  <div className="flex items-center justify-center text-blue-400 bg-blue-900/20 p-2 rounded-lg border border-blue-900/30 text-xs font-mono">
+                    WARD {location.ward}
+                  </div>
+                )}
+                {location.zone_number && (
+                  <div className="flex items-center justify-center text-purple-400 bg-purple-900/20 p-2 rounded-lg border border-purple-900/30 text-xs font-mono">
+                    ZONE {location.zone_number}
+                  </div>
+                )}
+              </div>
             </div>
           )}
           
