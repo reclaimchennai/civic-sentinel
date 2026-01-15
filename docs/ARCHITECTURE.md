@@ -16,7 +16,7 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 - **Framework:** FastAPI
 - **Language:** Python 3.9+
 - **Geospatial Processing:**
-    - `piexif` (EXIF Metadata Extraction)
+    - `piexif` & `Pillow` (EXIF Metadata Extraction)
     - `geopandas` & `shapely` (Geo-fencing & Point-in-Polygon checks)
 - **Geocoding:** LocationIQ API (Reverse Geocoding)
 - **Database Driver:** `psycopg2-binary`
@@ -56,9 +56,11 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 
 ### 1. Violation Reporting (End-to-End)
 1.  **User Action:** User uploads/snaps a photo via `SmartUploader`.
-2.  **Frontend:** Sends `POST /api/v1/report` with the image file.
+2.  **Frontend:** 
+    *   Attempts to extract EXIF data client-side using `exif-js` (Primary).
+    *   Sends `POST /api/v1/report` with image and extracted coordinates.
 3.  **Backend (FastAPI):**
-    *   **EXIF Extraction:** Extracts GPS (`lat`, `lng`) and `timestamp`.
+    *   **EXIF Extraction:** Extracts GPS (`lat`, `lng`) using `Pillow` as fallback if client-side failed.
     *   **Geo-Fencing:** Checks if coordinates are inside **GCC (Chennai) Limits** using `Chennai_Wards.geojson`.
     *   **Ward Detection:** Identifies the specific Ward polygon containing the point.
     *   **Zone Mapping:** Maps the Ward Number to a Zone Number/Name using `ward_zone_mapping.csv`.
@@ -66,6 +68,17 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
     *   **Storage:** Saves record to PostgreSQL `reports` table.
 4.  **Response:** Returns Success + Location Details (Ward, Zone) or Error (Outside GCC).
 5.  **Frontend:** Updates UI to show "Locked" state with Ward/Zone info.
+
+## Known Limitations & Privacy Constraints
+
+### Mobile Browser EXIF Stripping
+Modern mobile browsers (Chrome on Android 13+, Samsung Internet, Safari on iOS) aggressively strip location metadata from images selected from the **Gallery** for privacy reasons.
+
+*   **Behavior:** When `input type="file"` is used to pick an existing image, the browser scrubs the GPS tags or sets them to `NaN`/`0` before the file reaches the Javascript context or the server.
+*   **Workaround:** 
+    1.  **Camera Capture:** Using `capture="environment"` often bypasses this as the stream is direct.
+    2.  **Hybrid Extraction:** We attempt extraction on both client-side (before upload) and server-side.
+    3.  **Planned Feature:** A "Manual Pin Drop" map interface will be implemented as a fallback for users whose devices strip this data.
 
 ### 2. Moderation (Admin)
 1.  Admin logs in and navigates to `/admin`.
