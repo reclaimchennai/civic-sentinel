@@ -1,3 +1,10 @@
-tweepy
-python-dotenv
+fastapi
+uvicorn
+python-multipart
+piexif
+geopandas
+shapely
 psycopg2-binary
+requests
+python-dotenv
+sh

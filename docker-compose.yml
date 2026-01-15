@@ -29,6 +29,21 @@ services:
     volumes:
       - minio_data:/data
 
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: chennai_sentinel
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      LOCATIONIQ_API_KEY: ${LOCATIONIQ_API_KEY}
+    volumes:
+      - ./backend/uploads:/app/uploads
+    depends_on:
+      - db
+
 volumes:
   postgres_data:
   minio_data:
