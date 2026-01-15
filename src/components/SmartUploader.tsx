@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import { Camera, MapPin, CheckCircle2 } from 'lucide-react';
+import { Camera, MapPin, CheckCircle2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
