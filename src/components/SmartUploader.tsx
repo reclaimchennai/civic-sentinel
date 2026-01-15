@@ -1,9 +1,8 @@
-"use client";
-
 import React, { useState, useRef } from 'react';
-import { Camera, MapPin, CheckCircle2, Upload } from 'lucide-react';
+import { Camera, MapPin, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import EXIF from 'exif-js';
 
 interface Location {
   lat: number;
@@ -30,12 +29,49 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
     }
   };
 
-  const extractLocation = async (file: File) => {
+  const convertDMSToDD = (degrees: number, minutes: number, seconds: number, direction: string) => {
+    let dd = degrees + minutes / 60 + seconds / (60 * 60);
+    if (direction === "S" || direction === "W") {
+      dd = dd * -1;
+    }
+    return dd;
+  };
+
+  const extractLocation = (file: File) => {
     setIsExtracting(true);
     
+    // Try Client-Side EXIF first
+    EXIF.getData(file as any, function (this: any) {
+      const latData = EXIF.getTag(this, "GPSLatitude");
+      const lngData = EXIF.getTag(this, "GPSLongitude");
+      const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
+      const lngRef = EXIF.getTag(this, "GPSLongitudeRef") || "E";
+
+      let clientLat: number | null = null;
+      let clientLng: number | null = null;
+
+      if (latData && lngData) {
+        clientLat = convertDMSToDD(latData[0], latData[1], latData[2], latRef);
+        clientLng = convertDMSToDD(lngData[0], lngData[1], lngData[2], lngRef);
+        console.log("Client-side EXIF extracted:", clientLat, clientLng);
+      } else {
+        console.log("Client-side EXIF missing or failed.");
+      }
+
+      // Proceed to upload to backend (passing client coords if found)
+      uploadToBackend(file, clientLat, clientLng);
+    });
+  };
+
+  const uploadToBackend = async (file: File, lat: number | null, lng: number | null) => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('violation_type_id', '1'); // Default for extraction step
+    formData.append('violation_type_id', '1'); 
+    
+    if (lat !== null && lng !== null) {
+      formData.append('lat', lat.toString());
+      formData.append('lng', lng.toString());
+    }
 
     try {
       const response = await fetch('/api/v1/report', {
@@ -57,7 +93,6 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
         setLocation(loc);
         onUpload({ image: file, location: loc });
       } else {
-        // Handle rejection (Outside GCC, No GPS, etc.)
         alert(result.message);
         setImage(null);
         setPreview(null);
