@@ -70,6 +70,7 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
 ### 1. Reporting an Issue
 - Click the Camera icon or upload an image.
 - **Note:** The image *must* contain GPS EXIF data and be within Chennai.
+- **Gallery Uploads:** Some mobile browsers strip GPS data from gallery uploads. Use the in-app Camera option if this happens.
 - Select the Category (e.g., "Traffic").
 - Click **Submit**.
 
