@@ -5,13 +5,16 @@
 
 ![Status](https://img.shields.io/badge/Status-Prototype-orange)
 ![License](https://img.shields.io/badge/License-MIT-blue)
-![Stack](https://img.shields.io/badge/Stack-Next.js_15_|_PostGIS_|_Python-black)
+![Stack](https://img.shields.io/badge/Stack-Next.js_15_|_PostGIS_|_FastAPI-black)
 
 ## Overview
-Chennai Civic Sentinel is designed to solve the friction in current civic reporting systems. Users can report violations in under 10 seconds. The system features gamification to encourage participation and a robust admin dashboard for vetting reports before they are publicly broadcasted to authorities via Twitter.
+Chennai Civic Sentinel is designed to solve the friction in current civic reporting systems. Users can report violations in under 10 seconds. The system features gamification, robust admin moderation, and automated geospatial verification (Geo-fencing & Ward detection) to ensure reports are valid and within Chennai city limits.
 
 ## ✨ Key Features
-- **Frictionless Reporting:** Auto-GPS extraction from images.
+- **Frictionless Reporting:**
+    - Auto-GPS extraction from images.
+    - **GCC Geo-fencing:** Rejects reports outside Chennai.
+    - **Smart Location:** Auto-detects Ward, Zone, and Area.
 - **Admin Dashboard:** Tinder-style "Swipe" UI for approving/rejecting reports.
 - **Gamification:** Points, Levels, Badges, and Zone Mayorships.
 - **User Authentication:** OAuth (Google, Twitter, GitHub, etc.) and Demo Mode.
@@ -28,7 +31,6 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
 ### Prerequisites
 - Docker & Docker Compose
 - Node.js 18+
-- Python 3.9+
 
 ### Installation
 
@@ -38,17 +40,21 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
     cd civic-sentinel
     ```
 
-2.  **Start Infrastructure:**
+2.  **Start Infrastructure & Backend:**
     ```bash
     docker-compose up -d
     ```
+    *This starts PostgreSQL, MinIO, and the **Python Backend Service**.*
 
 3.  **Initialize Database:**
     ```bash
+    # Run setup schema
     docker exec -i civic-sentinel-db-1 psql -U postgres -d chennai_sentinel < setup.sql
+    # Run backend migrations (for new columns)
+    docker exec -i civic-sentinel-db-1 psql -U postgres -d chennai_sentinel < backend/migration.sql
     ```
 
-4.  **Install Dependencies:**
+4.  **Install Frontend Dependencies:**
     ```bash
     npm install
     ```
@@ -57,32 +63,26 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
     ```bash
     npm run dev
     ```
-    Open [http://localhost:3000](http://localhost:3000).
+    Open [https://app.reclaimchennai.city](https://app.reclaimchennai.city) (or localhost:3000).
 
 ## 🎮 Usage Guide
 
 ### 1. Reporting an Issue
-- Go to the Home Page.
 - Click the Camera icon or upload an image.
+- **Note:** The image *must* contain GPS EXIF data and be within Chennai.
 - Select the Category (e.g., "Traffic").
 - Click **Submit**.
 
 ### 2. Admin Moderation
-- Log in (use the **Try Demo Account** button if testing).
-- Click the **Shield Icon** in the bottom navigation.
-- **Swipe Right** to Approve.
-- **Swipe Left** to Reject.
-- Use the Hamburger menu to undo actions.
-
-### 3. Demo Mode
-- On the Login page, click **"Try Demo Account"**.
-- This logs you in as a pre-configured Level 5 user with badges and history.
+- Log in (use the **Try Demo Account** button).
+- Click the **Shield Icon**.
+- **Swipe Right** to Approve, **Swipe Left** to Reject.
 
 ## Security
-This repository enforces:
-- **Secret Scanning** (Gitleaks) on every push.
+- **Secret Scanning** enforced.
 - **Branch Protection** on `main`.
-- **Pre-commit hooks** (Husky) for local linting.
+- **RBAC:** Admin routes protected.
+- **Host Validation:** Direct IP access blocked.
 
 ## License
 MIT

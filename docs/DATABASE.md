@@ -2,29 +2,44 @@
 
 The project uses **PostgreSQL** with the **PostGIS** extension for geospatial features.
 
-## ER Diagram (Conceptual)
-`Users` (Managed by NextAuth) -> `Profiles` -> `Reports` -> `Zones` & `Categories`
-
 ## Tables
 
-### 1. `zones`
-Official administrative zones of Chennai.
+### 1. `reports`
+The core civic issue report table.
+
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `id` | UUID (PK) | Unique Report ID |
+| `image_url` | TEXT | Path to image (e.g., `uploads/image.jpg`) |
+| `lat` | FLOAT | Latitude (Extracted from EXIF) |
+| `lng` | FLOAT | Longitude (Extracted from EXIF) |
+| `created_at` | TIMESTAMP | Creation time (Extracted from EXIF or Now) |
+| `sub_category_id` | INT (FK) | Links to `complaint_sub_categories` |
+| `status` | ENUM | `pending`, `approved`, `rejected` |
+| `area` | TEXT | Reverse-geocoded locality (e.g., "T. Nagar") |
+| `ward` | TEXT | GCC Ward Number (e.g., "133") |
+| `zone_number` | INT | GCC Zone Number (e.g., 10) |
+| `zone_name` | TEXT | GCC Zone Name (e.g., "KODAMBAKKAM") |
+| `user_id` | UUID | Links to Auth User ID (Optional) |
+
+### 2. `zones`
+Official administrative zones of Chennai (Reference table).
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `id` | SERIAL (PK) | Unique Zone ID |
-| `name` | TEXT (Unique) | e.g., "T. Nagar", "Adyar" |
+| `name` | TEXT | e.g., "T. Nagar" |
 | `slug` | TEXT | URL-friendly version |
 
-### 2. `complaint_categories`
-Broad categories for issues.
+*Note: The backend now also uses `backend/data/ward_zone_mapping.csv` for logic mapping, but `zones` table remains as a reference.*
+
+### 3. `complaint_categories`
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `id` | SERIAL (PK) | Unique ID |
 | `name` | TEXT | e.g., "Traffic Violations" |
 | `icon_slug` | TEXT | Lucide icon name |
 
-### 3. `complaint_sub_categories`
-Specific violation types.
+### 4. `complaint_sub_categories`
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `id` | SERIAL (PK) | Unique ID |
@@ -32,23 +47,8 @@ Specific violation types.
 | `name` | TEXT | e.g., "No Parking" |
 | `severity` | ENUM | `low`, `medium`, `critical` |
 
-### 4. `reports`
-The core civic issue report.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | UUID (PK) | Unique Report ID |
-| `image_url` | TEXT | Path to image in storage |
-| `lat` | FLOAT | Latitude |
-| `lng` | FLOAT | Longitude |
-| `zone_id` | INT (FK) | Links to `zones` |
-| `sub_category_id` | INT (FK) | Links to `complaint_sub_categories` |
-| `description` | TEXT | Optional user description |
-| `status` | ENUM | `pending`, `approved`, `rejected` |
-| `user_id` | UUID | Links to Auth User ID |
-| `created_at` | TIMESTAMP | Creation time |
-
 ### 5. `profiles`
-Gamification stats for users.
+Gamification stats.
 | Column | Type | Description |
 | :--- | :--- | :--- |
 | `id` | UUID (PK) | Unique Profile ID |
@@ -57,18 +57,9 @@ Gamification stats for users.
 | `total_points` | INT | Lifetime XP |
 | `badges` | JSONB | Array of earned badge IDs |
 
-### 6. `rewards_catalog`
-Items users can redeem.
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `id` | SERIAL (PK) | Unique ID |
-| `name` | TEXT | Item Name |
-| `cost_points` | INT | Cost |
-| `type` | ENUM | `merch`, `coupon` |
-
 ## Setup
-The schema is initialized via `setup.sql`.
-To reset the DB in development:
+To initialize or reset the database:
 ```bash
 docker exec -i civic-sentinel-db-1 psql -U postgres -d chennai_sentinel < setup.sql
+docker exec -i civic-sentinel-db-1 psql -U postgres -d chennai_sentinel < backend/migration.sql
 ```

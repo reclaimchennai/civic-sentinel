@@ -1,6 +1,44 @@
 # API Documentation
 
-## Authentication Endpoints
+## Violation Reporting (Backend Service)
+
+The backend service runs on port `8000` (internal) and is accessible via `/api/v1/*` proxy from the frontend.
+
+### `POST /api/v1/report`
+Submit a new violation report. Performs server-side validation, geospatial analysis, and storage.
+
+**Request:**
+- **Content-Type:** `multipart/form-data`
+- **Body:**
+    - `file`: The image file (JPEG/PNG). **Must contain GPS EXIF metadata.**
+    - `violation_type_id`: Integer ID of the violation category (e.g., 1 for Traffic).
+
+**Success Response (200 OK):**
+```json
+{
+  "status": "success",
+  "message": "Violation reported successfully.",
+  "data": {
+    "report_id": "uuid-string",
+    "area": "T. Nagar",
+    "ward": "133",
+    "zone_number": 10,
+    "zone_name": "KODAMBAKKAM",
+    "lat": 13.0418,
+    "lng": 80.2341
+  }
+}
+```
+
+**Error Responses:**
+- **400 Bad Request:** Missing file or invalid data.
+- **200 OK (Logical Error):** (The API currently returns 200 with status="error" for logic failures to handle frontend gracefully, subject to change)
+    - `{"status": "error", "message": "No EXIF metadata found..."}`
+    - `{"status": "error", "message": "Location is outside Greater Chennai Corporation limits."}`
+
+---
+
+## Authentication Endpoints (NextAuth.js)
 
 ### `GET/POST /api/auth/[...nextauth]`
 Handled automatically by **NextAuth.js**.
@@ -22,45 +60,8 @@ Fetches the current user's profile and gamification stats.
 {
   "id": "user-uuid",
   "name": "User Name",
-  "email": "user@example.com",
   "level": 5,
   "points": 450,
-  "nextLevelPoints": 1000,
-  "reports": 12,
-  "approved": 10,
-  "badges": ["Early Adopter", "Night Owl"],
-  "mayorship": "T. Nagar",
-  "bio": "User bio text..."
+  ...
 }
 ```
-
-**Response (401 Unauthorized):**
-```json
-{ "error": "Unauthorized" }
-```
-
----
-
-## Report Endpoints (Planned/Pending)
-
-### `POST /api/reports` (Planned)
-Submit a new report.
-- **Body:** `{ image, lat, lng, zone_id, sub_category_id, description }`
-
-### `GET /api/admin/reports` (Planned)
-Fetch pending reports for the Admin Dashboard.
-- **Query Params:** `?status=pending&limit=10`
-
-### `PATCH /api/admin/reports/:id` (Planned)
-Approve or Reject a report.
-- **Body:** `{ "status": "approved" | "rejected" }`
-
----
-
-## Error Handling
-Standard HTTP Status Codes are used:
-- `200`: Success
-- `400`: Bad Request (Validation Error)
-- `401`: Unauthorized (Not logged in)
-- `403`: Forbidden (Admin only access)
-- `500`: Internal Server Error
