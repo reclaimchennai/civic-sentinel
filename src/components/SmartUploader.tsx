@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from 'react';
-import EXIF from 'exif-js';
 import { Camera, MapPin, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -28,42 +27,41 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
     }
   };
 
-  const extractLocation = (file: File) => {
+  const extractLocation = async (file: File) => {
     setIsExtracting(true);
-    EXIF.getData(file as any, function (this: any) {
-      const lat = EXIF.getTag(this, "GPSLatitude");
-      const lng = EXIF.getTag(this, "GPSLongitude");
-      const latRef = EXIF.getTag(this, "GPSLatitudeRef") || "N";
-      const lngRef = EXIF.getTag(this, "GPSLongitudeRef") || "E";
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('violation_type_id', '1'); // Default for extraction step
 
-      if (lat && lng) {
-        const latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
-        const longitude = convertDMSToDD(lng[0], lng[1], lng[2], lngRef);
-        
-        // Mock Reverse Geocoding for Chennai Zones
-        // In a real app, call an API here.
-        const mockZone = "T. Nagar"; 
-        
-        const loc = { lat: latitude, lng: longitude, zone: mockZone };
+    try {
+      const response = await fetch('/api/v1/report', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        const loc = { 
+          lat: result.data.lat, 
+          lng: result.data.lng, 
+          zone: result.data.area 
+        };
         setLocation(loc);
         onUpload({ image: file, location: loc });
       } else {
-        // Fallback: Trigger Map Selection (Mocked here for now)
-        console.log("No GPS data found");
-        const fallbackLoc = { lat: 13.0827, lng: 80.2707, zone: "Chennai Central" };
-        setLocation(fallbackLoc);
-        onUpload({ image: file, location: fallbackLoc });
+        // Handle rejection (Outside GCC, No GPS, etc.)
+        alert(result.message);
+        setImage(null);
+        setPreview(null);
       }
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert("Failed to connect to reporting service.");
+    } finally {
       setIsExtracting(false);
-    });
-  };
-
-  const convertDMSToDD = (degrees: number, minutes: number, seconds: number, direction: string) => {
-    let dd = degrees + minutes / 60 + seconds / (60 * 60);
-    if (direction === "S" || direction === "W") {
-      dd = dd * -1;
     }
-    return dd;
   };
 
   return (
