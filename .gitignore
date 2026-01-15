@@ -42,3 +42,5 @@ next-env.d.ts
 
 # Documentation
 gemini.md
+.env
+backend/.env
