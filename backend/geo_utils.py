@@ -2,6 +2,7 @@ import piexif
 from datetime import datetime
 import geopandas as gpd
 from shapely.geometry import Point
+import pandas as pd
 import requests
 import os
 from dotenv import load_dotenv
@@ -9,7 +10,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GEOJSON_PATH = "data/Chennai_Wards.geojson"
+MAPPING_PATH = "data/ward_zone_mapping.csv"
 LOCATIONIQ_KEY = os.getenv("LOCATIONIQ_API_KEY")
+
+# Load mapping once
+try:
+    ward_mapping = pd.read_csv(MAPPING_PATH)
+    # Ensure WARD_NO is string to match GeoJSON 'name' if needed, or int
+    # GeoJSON 'name' is likely string "168". CSV is likely int.
+    # Let's standardize on string.
+    ward_mapping['WARD_NO'] = ward_mapping['WARD_NO'].astype(str)
+except Exception as e:
+    print(f"Mapping Load Error: {e}")
+    ward_mapping = pd.DataFrame()
 
 def extract_exif_data(image_path):
     try:
@@ -52,20 +65,42 @@ def extract_exif_data(image_path):
 def is_in_gcc_boundary(lat, lng):
     try:
         # Load GCC Wards
-        # Optimally, load this once globally, but for now loading per request for simplicity
-        # In prod, this would be a global object
         gdf = gpd.read_file(GEOJSON_PATH)
+        
+        # Ensure 2D and standard CRS
+        if gdf.crs != "EPSG:4326":
+            gdf = gdf.to_crs("EPSG:4326")
         
         point = Point(lng, lat) # GeoJSON uses (lng, lat)
         
-        # Check if point is within any polygon in the GeoDataFrame
-        is_within = gdf.contains(point).any()
-        return is_within
+        print(f"Checking point {point} against {len(gdf)} polygons")
+        
+        # Check if point is within any polygon
+        # Using within(point) on the series is often faster/better
+        mask = gdf.geometry.contains(point)
+        
+        if mask.any():
+            # Get the ward name from the matching row
+            ward = gdf.loc[mask, 'name'].values[0]
+            print(f"Point is inside Ward: {ward}")
+            
+            # Lookup Zone
+            zone_info = ward_mapping[ward_mapping['WARD_NO'] == str(ward)]
+            if not zone_info.empty:
+                zone_no = int(zone_info.iloc[0]['ZONE_NO'])
+                zone_name = zone_info.iloc[0]['ZONE_NAME']
+                return True, ward, zone_no, zone_name
+            
+            return True, ward, None, None
+        
+        # Check distance if not found (debugging)
+        min_dist = gdf.geometry.distance(point).min()
+        print(f"Point is NOT in GCC. Min distance to boundary: {min_dist}")
+
+        return False, None, None, None
     except Exception as e:
         print(f"GeoFence Error: {e}")
-        # Fail safe: Allow if check fails? Or Block? 
-        # Blocking is safer for the requirement "Constrain app functionality"
-        return False
+        return False, None, None, None
 
 def reverse_geocode(lat, lng):
     if not LOCATIONIQ_KEY:
