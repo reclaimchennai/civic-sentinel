@@ -68,9 +68,9 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
 ## 🎮 Usage Guide
 
 ### 1. Reporting an Issue
-- Click the Camera icon or upload an image.
+- **Snap Picture:** Use this for live reporting (Camera).
+- **Upload File:** Use this for existing photos. It opens the File Manager to preserve GPS metadata that Galleries often strip.
 - **Note:** The image *must* contain GPS EXIF data and be within Chennai.
-- **Gallery Uploads:** Some mobile browsers strip GPS data from gallery uploads. Use the in-app Camera option if this happens.
 - Select the Category (e.g., "Traffic").
 - Click **Submit**.
 

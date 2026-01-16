@@ -55,7 +55,9 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 ## Key Workflows
 
 ### 1. Violation Reporting (End-to-End)
-1.  **User Action:** User uploads/snaps a photo via `SmartUploader`.
+1.  **User Action:** User chooses between two modes:
+    *   **Snap Picture:** Opens the camera directly (best for live reporting).
+    *   **Upload File:** Opens the system File Manager to select an existing photo (preserves metadata that Gallery apps often strip).
 2.  **Frontend:** 
     *   Attempts to extract EXIF data client-side using `exif-js` (Primary).
     *   Sends `POST /api/v1/report` with image and extracted coordinates.
@@ -74,11 +76,11 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 ### Mobile Browser EXIF Stripping
 Modern mobile browsers (Chrome on Android 13+, Samsung Internet, Safari on iOS) aggressively strip location metadata from images selected from the **Gallery** for privacy reasons.
 
-*   **Behavior:** When `input type="file"` is used to pick an existing image, the browser scrubs the GPS tags or sets them to `NaN`/`0` before the file reaches the Javascript context or the server.
-*   **Workaround:** 
-    1.  **Camera Capture:** Using `capture="environment"` often bypasses this as the stream is direct.
-    2.  **Hybrid Extraction:** We attempt extraction on both client-side (before upload) and server-side.
-    3.  **Planned Feature:** A "Manual Pin Drop" map interface will be implemented as a fallback for users whose devices strip this data.
+*   **Behavior:** When `input type="file" accept="image/*"` is used, the OS Media Picker scrubs the GPS tags.
+*   **Solution:** 
+    1.  **Direct Camera:** `capture="environment"` bypasses the picker.
+    2.  **File Picker Override:** We provide an "Upload File" button that uses `accept=".jpg,.heic"` to force the OS to use the **File Manager** instead of the Gallery. This treats the image as a binary file, preserving metadata.
+    3.  **Hybrid Extraction:** We extract data on both client and server to maximize success rates.
 
 ### 2. Moderation (Admin)
 1.  Admin logs in and navigates to `/admin`.
