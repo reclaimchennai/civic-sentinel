@@ -45,3 +45,12 @@
 - [ ] **Profile Customization (CD4):** Avatars, frames, and banners.
 - [ ] **Hidden Achievements (CD7):** Secret badges based on patterns.
 - [ ] **Onboarding Narrative (CD1):** "Sentinel's Creed" interactive intro.
+
+## Violation Reporting (Current)
+- [x] EXIF Extraction (Backend - Pillow)
+- [x] GCC Geo-fencing (Python/GeoPandas)
+- [x] Ward & Zone Detection
+- [x] Reverse Geocoding (LocationIQ)
+- [x] Frontend Integration (SmartUploader)
+- [x] **Solved:** Gallery EXIF Stripping (via File Picker)
+- [ ] Submit Report Logic (Finalizing category submission to DB)
