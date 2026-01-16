@@ -108,21 +108,21 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
   return (
     <Card className="p-6 bg-zinc-900 border-zinc-800 flex flex-col items-center justify-center space-y-4">
       {!preview ? (
-        <div 
-          onClick={() => fileInputRef.current?.click()}
-          className="w-full h-64 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 transition-colors"
-        >
-          <Camera className="w-12 h-12 text-zinc-500 mb-2" />
-          <p className="text-zinc-400">Snap or Upload Violation</p>
+          <Button 
+            variant="outline" 
+            className="w-full border-zinc-700 hover:bg-zinc-800 text-zinc-300"
+            onClick={() => galleryInputRef.current?.click()}
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload File (Preserves GPS)
+          </Button>
           <input 
             type="file" 
-            accept="image/*" 
-            capture="environment"
+            accept=".jpg,.jpeg,.png,.heic,.heif"
             className="hidden" 
-            ref={fileInputRef}
+            ref={galleryInputRef}
             onChange={handleFileChange}
           />
-        </div>
       ) : (
         <div className="w-full space-y-4">
           <div className="relative w-full h-64 rounded-xl overflow-hidden">
