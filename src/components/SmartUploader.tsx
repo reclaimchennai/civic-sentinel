@@ -141,7 +141,7 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
             onClick={() => galleryInputRef.current?.click()}
           >
             <Upload className="w-4 h-4 mr-2" />
-            Upload File (Preserves GPS)
+            Upload Image
           </Button>
           <input 
             type="file" 
