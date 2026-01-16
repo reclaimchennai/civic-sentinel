@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Camera, MapPin, CheckCircle2 } from 'lucide-react';
+import { Camera, MapPin, CheckCircle2, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import EXIF from 'exif-js';
@@ -18,7 +18,9 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
   const [preview, setPreview] = useState<string | null>(null);
   const [location, setLocation] = useState<Location | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -108,6 +110,31 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
   return (
     <Card className="p-6 bg-zinc-900 border-zinc-800 flex flex-col items-center justify-center space-y-4">
       {!preview ? (
+        <div className="w-full space-y-4">
+          {/* Snap Picture Button */}
+          <div 
+            onClick={() => cameraInputRef.current?.click()}
+            className="w-full h-40 border-2 border-dashed border-zinc-700 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-zinc-500 hover:bg-zinc-800/50 transition-all group"
+          >
+            <Camera className="w-10 h-10 text-zinc-500 group-hover:text-yellow-500 mb-2 transition-colors" />
+            <p className="text-zinc-400 font-medium">Snap Picture</p>
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment"
+              className="hidden" 
+              ref={cameraInputRef}
+              onChange={handleFileChange}
+            />
+          </div>
+
+          <div className="flex items-center justify-center space-x-2 text-zinc-600 text-xs uppercase font-bold tracking-widest">
+            <span className="h-px w-full bg-zinc-800"></span>
+            <span>OR</span>
+            <span className="h-px w-full bg-zinc-800"></span>
+          </div>
+
+          {/* Upload File Button (Forces File Manager) */}
           <Button 
             variant="outline" 
             className="w-full border-zinc-700 hover:bg-zinc-800 text-zinc-300"
@@ -123,6 +150,7 @@ export default function SmartUploader({ onUpload }: { onUpload: (data: { image: 
             ref={galleryInputRef}
             onChange={handleFileChange}
           />
+        </div>
       ) : (
         <div className="w-full space-y-4">
           <div className="relative w-full h-64 rounded-xl overflow-hidden">
