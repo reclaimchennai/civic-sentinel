@@ -1,7 +1,7 @@
 # System Architecture
 
 ## Overview
-Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facilitate frictionless civic reporting. It uses a **Next.js** frontend for user interaction and a **Python** backend for social media automation, connected via a **PostgreSQL** database.
+Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facilitate frictionless civic reporting. It uses a **Next.js** frontend for user interaction and a **Python (FastAPI)** backend for geospatial processing and violation reporting, connected via a **PostgreSQL** database.
 
 ## Tech Stack
 
@@ -11,64 +11,84 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 - **Styling:** Tailwind CSS + Shadcn UI
 - **Authentication:** NextAuth.js (v5 Beta)
 - **State Management:** React Server Components + Client Hooks
-- **Maps/Location:** EXIF.js (GPS extraction), Leaflet/Google Maps (planned)
 
-### Backend Services
+### Backend Services (Python Microservice)
+- **Framework:** FastAPI
+- **Language:** Python 3.9+
+- **Geospatial Processing:**
+    - `piexif` & `Pillow` (EXIF Metadata Extraction)
+    - `geopandas` & `shapely` (Geo-fencing & Point-in-Polygon checks)
+- **Geocoding:** LocationIQ API (Reverse Geocoding)
+- **Database Driver:** `psycopg2-binary`
+
+### Data Layer
 - **Database:** PostgreSQL 15 + PostGIS (Spatial Data)
-- **Cache/Queue:** Redis (for job queues, planned)
-- **Storage:** MinIO (Local S3 compatible) or Supabase Storage
-- **Bot Automation:** Python (Tweepy) for Twitter integration
+- **Storage:** Local Filesystem (Prototype) / MinIO / S3 (Production)
 
 ### Infrastructure
 - **Containerization:** Docker & Docker Compose
-- **CI/CD:** GitHub Actions (Security & Linting)
+- **Proxy:** Caddy (Reverse Proxy & SSL)
 
 ## Directory Structure
 
 ```
 /
-├── backend/                # Python scripts for Twitter automation
-│   ├── twitter_bot.py      # Main bot logic
+├── backend/                # Python FastAPI Service
+│   ├── data/               # GeoJSON & Mapping files
+│   │   ├── Chennai_Wards.geojson
+│   │   └── ward_zone_mapping.csv
+│   ├── uploads/            # Temporary image storage
+│   ├── main.py             # FastAPI Entry Point
+│   ├── geo_utils.py        # Core Geospatial Logic
+│   ├── db.py               # Database Interaction
 │   └── requirements.txt    # Python dependencies
-├── public/                 # Static assets (images, icons)
 ├── src/
 │   ├── app/                # Next.js App Router
-│   │   ├── admin/          # Admin Dashboard (Swipe UI)
-│   │   ├── api/            # API Route Handlers
-│   │   ├── login/          # Auth Pages
-│   │   ├── profile/        # User Profile & Stats
-│   │   ├── globals.css     # Global styles & Tailwind
-│   │   ├── layout.tsx      # Root layout & Providers
-│   │   └── page.tsx        # Main Landing / Report Interface
 │   ├── components/         # React Components
-│   │   ├── ui/             # Shadcn UI primitives
-│   │   ├── SmartUploader.tsx # Logic for image & GPS handling
-│   │   ├── UserHeader.tsx    # Auth-aware navigation
+│   │   ├── SmartUploader.tsx # Frontend Integration
 │   │   └── ...
-│   ├── lib/                # Utilities & Helpers
-│   └── auth.ts             # NextAuth.js Configuration
-├── docker-compose.yml      # Local dev infrastructure
-├── setup.sql               # Database schema & seed data
-└── next.config.ts          # Next.js Config
+│   └── ...
+├── docker-compose.yml      # Service orchestration
+└── next.config.ts          # Next.js Config (Rewrites /api/v1 -> Backend)
 ```
 
 ## Key Workflows
 
-### 1. Frictionless Reporting (User)
-1.  User lands on Homepage.
-2.  Uploads image via `SmartUploader`.
-3.  App extracts GPS metadata (EXIF).
-4.  User selects Category/Sub-category.
-5.  Report is saved to DB with status `pending`.
+### 1. Violation Reporting (End-to-End)
+1.  **User Action:** User chooses between two modes:
+    *   **Snap Picture:** Opens the camera directly (best for live reporting).
+    *   **Upload File:** Opens the system File Manager to select an existing photo (preserves metadata that Gallery apps often strip).
+2.  **Frontend:** 
+    *   Attempts to extract EXIF data client-side using `exif-js` (Primary).
+    *   Sends `POST /api/v1/report` with image and extracted coordinates.
+3.  **Backend (FastAPI):**
+    *   **EXIF Extraction:** Extracts GPS (`lat`, `lng`) using `Pillow` as fallback if client-side failed.
+    *   **Geo-Fencing:** Checks if coordinates are inside **GCC (Chennai) Limits** using `Chennai_Wards.geojson`.
+    *   **Ward Detection:** Identifies the specific Ward polygon containing the point.
+    *   **Zone Mapping:** Maps the Ward Number to a Zone Number/Name using `ward_zone_mapping.csv`.
+    *   **Reverse Geocoding:** Fetches area name (e.g., "T. Nagar") from LocationIQ.
+    *   **Storage:** Saves record to PostgreSQL `reports` table.
+4.  **Response:** Returns Success + Location Details (Ward, Zone) or Error (Outside GCC).
+5.  **Frontend:** Updates UI to show "Locked" state with Ward/Zone info.
+
+## Known Limitations & Privacy Constraints
+
+### Mobile Browser EXIF Stripping
+Modern mobile browsers (Chrome on Android 13+, Samsung Internet, Safari on iOS) aggressively strip location metadata from images selected from the **Gallery** for privacy reasons.
+
+*   **Behavior:** When `input type="file" accept="image/*"` is used, the OS Media Picker scrubs the GPS tags.
+*   **Solution:** 
+    1.  **Direct Camera:** `capture="environment"` bypasses the picker.
+    2.  **File Picker Override:** We provide an "Upload File" button that uses `accept=".jpg,.heic"` to force the OS to use the **File Manager** instead of the Gallery. This treats the image as a binary file, preserving metadata.
+    3.  **Hybrid Extraction:** We extract data on both client and server to maximize success rates.
 
 ### 2. Moderation (Admin)
 1.  Admin logs in and navigates to `/admin`.
 2.  System fetches `pending` reports.
 3.  Admin swipes **Right (Approve)** or **Left (Reject)**.
 4.  Status updates in DB.
-5.  (Future) Approved reports trigger Python bot.
 
 ### 3. Authentication
 1.  NextAuth.js handles OAuth (Google, Twitter, etc.) and Credentials (Demo).
 2.  JWT strategy is used for sessions.
-3.  Middleware protects `/admin` and `/profile` routes.
+3.  Middleware protects `/admin` and `/profile` routes and blocks direct IP access.
