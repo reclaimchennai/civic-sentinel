@@ -24,6 +24,7 @@ Chennai Civic Sentinel is designed to solve the friction in current civic report
 - [System Architecture](docs/ARCHITECTURE.md)
 - [API Documentation](docs/API.md)
 - [Database Schema](docs/DATABASE.md)
+- [Authentication Setup](docs/AUTH_SETUP.md)
 - [Contributing Guidelines](docs/CONTRIBUTING.md)
 
 ## 🚀 Quick Start
