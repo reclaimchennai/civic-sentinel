@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Camera, Trophy, Gift, User } from 'lucide-react';
+import { Camera, Trophy, Gift, User, Swords } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import AdminButton from './AdminButton';
 
@@ -12,6 +12,7 @@ export default function Navbar() {
   const navItems = [
     { name: 'Report', href: '/', icon: Camera },
     { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+    { name: 'Challenges', href: '/challenges', icon: Swords },
     { name: 'Redeem', href: '/redeem', icon: Gift },
   ];
 

@@ -21,7 +21,20 @@ export async function GET(req: Request) {
     badges: [],
     mayorship: 'None',
     bio: "New user ready to help!",
-    joinedAt: new Date().toISOString()
+    joinedAt: new Date().toISOString(),
+    // Gamification fields
+    streak: {
+      currentStreak: 0,
+      longestStreak: 0,
+      lastActiveDate: new Date().toISOString(),
+      isAtRisk: false,
+      streakShields: 0,
+      weeklyActivity: [false, false, false, false, false, false, false],
+    },
+    title: "Civic Guardian",
+    activeChallenges: 0,
+    guildName: null,
+    endorsements: 0,
   };
 
   // Override for Demo User
@@ -42,7 +55,20 @@ export async function GET(req: Request) {
         { name: 'Verified Voice', image: '/badges/verified voice_nobg.png' }
       ],
       mayorship: 'T. Nagar',
-      bio: "Just a concerned citizen trying to fix the city, one pothole at a time."
+      bio: "Just a concerned citizen trying to fix the city, one pothole at a time.",
+      // Gamification overrides for demo
+      streak: {
+        currentStreak: 7,
+        longestStreak: 14,
+        lastActiveDate: new Date().toISOString(),
+        isAtRisk: false,
+        streakShields: 2,
+        weeklyActivity: [true, true, false, true, true, true, true],
+      },
+      title: "Ward Protector",
+      activeChallenges: 3,
+      guildName: "T. Nagar Tigers",
+      endorsements: 24,
     };
   }
 

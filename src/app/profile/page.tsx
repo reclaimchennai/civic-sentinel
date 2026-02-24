@@ -5,9 +5,13 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, MapPin, Award, Star } from 'lucide-react';
+import { Trophy, MapPin, Award, Star, Flame, BarChart3, Palette, ChevronRight, Users } from 'lucide-react';
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import LevelProgressBar from "@/components/LevelProgressBar";
+import StreakDisplay from "@/components/StreakDisplay";
+import { getLevelFromPoints } from "@/lib/levels";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -29,6 +33,8 @@ export default function ProfilePage() {
     return <div className="min-h-screen bg-black flex items-center justify-center text-zinc-500">Loading...</div>;
   }
 
+  const level = getLevelFromPoints(userStats.points);
+
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
       <header className="mb-8 flex flex-col items-center text-center space-y-4">
@@ -40,29 +46,29 @@ export default function ProfilePage() {
             </AvatarFallback>
           </Avatar>
           <div className="absolute -bottom-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full border-2 border-black">
-            Lvl {userStats.level}
+            {level.icon} {level.tier}
           </div>
         </div>
         <div>
           <h1 className="text-2xl font-bold">{session?.user?.name}</h1>
-          <p className="text-zinc-500 text-sm">Civic Guardian</p>
+          <p className={`text-sm font-medium ${level.color}`}>{userStats.title || level.name}</p>
         </div>
+        {userStats.guildName && (
+          <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-500/30">
+            <Users className="w-3 h-3 mr-1" />
+            {userStats.guildName}
+          </Badge>
+        )}
       </header>
 
       <div className="space-y-6">
-        {/* Points & Progress */}
-        <Card className="bg-zinc-900 border-zinc-800">
-          <CardHeader className="pb-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Experience</span>
-              <span className="font-bold text-yellow-500">{userStats.points} / {userStats.nextLevelPoints} XP</span>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <XPProgressBar current={userStats.points} total={userStats.nextLevelPoints} />
-            <p className="text-xs text-zinc-500 mt-2 text-center">550 XP to Level {userStats.level + 1}</p>
-          </CardContent>
-        </Card>
+        {/* Streak Display */}
+        {userStats.streak && (
+          <StreakDisplay streak={userStats.streak} />
+        )}
+
+        {/* Level Progress */}
+        <LevelProgressBar points={userStats.points} />
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
@@ -79,19 +85,39 @@ export default function ProfilePage() {
         </div>
 
         {/* Mayorship */}
-        <Card className="bg-gradient-to-br from-indigo-900 to-zinc-900 border-indigo-500/30">
-          <CardContent className="flex items-center justify-between p-6">
-            <div className="flex items-center space-x-4">
-              <div className="p-3 bg-indigo-500/20 rounded-full">
-                <MapPin className="w-6 h-6 text-indigo-400" />
+        {userStats.mayorship !== 'None' && (
+          <Card className="bg-gradient-to-br from-indigo-900 to-zinc-900 border-indigo-500/30">
+            <CardContent className="flex items-center justify-between p-6">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-indigo-500/20 rounded-full">
+                  <MapPin className="w-6 h-6 text-indigo-400" />
+                </div>
+                <div>
+                  <p className="text-xs text-indigo-300 font-bold uppercase">Current Mayor of</p>
+                  <h3 className="text-xl font-bold text-white">{userStats.mayorship}</h3>
+                </div>
               </div>
-              <div>
-                <p className="text-xs text-indigo-300 font-bold uppercase">Current Mayor of</p>
-                <h3 className="text-xl font-bold text-white">{userStats.mayorship}</h3>
-              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Quick Links */}
+        <div className="space-y-2">
+          <Link href="/profile/stats" className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors">
+            <div className="flex items-center space-x-3">
+              <BarChart3 className="w-5 h-5 text-blue-400" />
+              <span className="font-medium">Your Stats</span>
             </div>
-          </CardContent>
-        </Card>
+            <ChevronRight className="w-4 h-4 text-zinc-500" />
+          </Link>
+          <Link href="/profile/customize" className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-700 transition-colors">
+            <div className="flex items-center space-x-3">
+              <Palette className="w-5 h-5 text-purple-400" />
+              <span className="font-medium">Customize Profile</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-zinc-500" />
+          </Link>
+        </div>
 
         {/* Badges */}
         <div>
@@ -109,53 +135,5 @@ export default function ProfilePage() {
         </div>
       </div>
     </main>
-  );
-}
-
-function XPProgressBar({ current, total }: { current: number, total: number }) {
-  const percentage = Math.min((current / total) * 100, 100);
-  
-  return (
-    <div className="relative w-full h-4 bg-zinc-800 rounded-full overflow-hidden border border-zinc-700">
-      {/* Background Pulse Glow */}
-      <motion.div 
-        className="absolute inset-0 bg-[#FFD700]/20 blur-md"
-        animate={{ opacity: [0.2, 0.5, 0.2] }}
-        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* The Bar Itself */}
-      <motion.div 
-        className="h-full bg-[#FFD700] relative overflow-hidden"
-        initial={{ width: 0 }}
-        animate={{ width: `${percentage}%` }}
-        transition={{ duration: 1, ease: "easeOut" }}
-      >
-        {/* Shine Effect */}
-        <motion.div 
-          className="absolute top-0 bottom-0 w-20 bg-gradient-to-r from-transparent via-white/50 to-transparent skew-x-[-20deg]"
-          animate={{ left: ["-100%", "200%"] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        />
-        
-        {/* Sparks */}
-        <div className="absolute inset-0 w-full h-full">
-           {[...Array(5)].map((_, i) => (
-             <motion.div
-               key={i}
-               className="absolute w-1 h-1 bg-yellow-100 rounded-full"
-               initial={{ y: 16, x: Math.random() * 100 + "%", opacity: 0 }}
-               animate={{ y: -10, opacity: [0, 1, 0] }}
-               transition={{ 
-                 duration: 0.8 + Math.random() * 0.5, 
-                 repeat: Infinity, 
-                 delay: Math.random() * 2,
-                 ease: "easeOut" 
-               }}
-             />
-           ))}
-        </div>
-      </motion.div>
-    </div>
   );
 }
