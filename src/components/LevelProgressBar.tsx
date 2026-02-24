@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { getLevelFromPoints, getProgressToNextLevel, LEVELS } from "@/lib/levels";
+import GameIcon from "@/components/GameIcon";
 
 interface LevelProgressBarProps {
   points: number;
@@ -20,7 +21,7 @@ export default function LevelProgressBar({ points }: LevelProgressBarProps) {
       {/* Level info */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-xl">{level.icon}</span>
+          <GameIcon name={level.icon} size="sm" variant="plain" color={level.color} />
           <span className={`text-sm font-bold ${level.color}`}>
             {level.name}
           </span>

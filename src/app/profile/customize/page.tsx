@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Check, Lock, Sparkles } from "lucide-react";
+import GameIcon from "@/components/GameIcon";
 import { motion } from "framer-motion";
 import { EXCLUSIVE_BADGES, BADGE_RARITY_CONFIG } from "@/lib/exclusiveBadges";
 import Link from "next/link";
@@ -207,8 +208,13 @@ export default function CustomizePage() {
               >
                 {badge ? (
                   <div className="text-center">
-                    <div className="text-2xl mb-0.5">
-                      {badge.rarity === "legendary" ? "⭐" : badge.rarity === "epic" ? "💎" : badge.rarity === "rare" ? "💠" : badge.rarity === "uncommon" ? "🟢" : "⚪"}
+                    <div className="mb-0.5 flex justify-center">
+                      <GameIcon
+                        name={badge.rarity === "legendary" ? "Star" : badge.rarity === "epic" ? "Gem" : badge.rarity === "rare" ? "Sparkles" : badge.rarity === "uncommon" ? "Shield" : "Medal"}
+                        size="lg"
+                        variant="plain"
+                        color={badge.rarity === "legendary" ? "yellow" : badge.rarity === "epic" ? "purple" : badge.rarity === "rare" ? "blue" : badge.rarity === "uncommon" ? "green" : "zinc"}
+                      />
                     </div>
                     <p className={`text-[8px] font-bold ${rarityConfig?.color}`}>{badge.name}</p>
                   </div>

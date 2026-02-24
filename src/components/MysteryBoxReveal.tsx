@@ -5,6 +5,7 @@ import { useState } from "react";
 import confetti from "canvas-confetti";
 import { BOX_CONFIG, rollReward, type BoxRarity, type MysteryReward } from "@/lib/mysteryBox";
 import { Button } from "@/components/ui/button";
+import GameIcon from "@/components/GameIcon";
 
 interface MysteryBoxRevealProps {
   rarity: BoxRarity;
@@ -19,16 +20,16 @@ const RARITY_CONFETTI: Record<BoxRarity, string[]> = {
 };
 
 const RARITY_ICONS: Record<BoxRarity, string> = {
-  bronze: "📦",
-  silver: "🎁",
-  gold: "✨",
+  bronze: "Package",
+  silver: "Gift",
+  gold: "Sparkles",
 };
 
 const REWARD_ICONS: Record<string, string> = {
-  points: "💰",
-  badge: "🏅",
-  multiplier: "⚡",
-  shield: "🛡️",
+  points: "Coins",
+  badge: "Medal",
+  multiplier: "Zap",
+  shield: "Shield",
 };
 
 export default function MysteryBoxReveal({
@@ -97,7 +98,7 @@ export default function MysteryBoxReveal({
                 style={{ cursor: "pointer" }}
                 onClick={handleTap}
               >
-                <span className="text-5xl">{RARITY_ICONS[rarity]}</span>
+                <GameIcon name={RARITY_ICONS[rarity]} size="2xl" variant="plain" color="amber" />
               </motion.div>
 
               <motion.p
@@ -133,9 +134,7 @@ export default function MysteryBoxReveal({
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <span className="text-4xl">
-                  {REWARD_ICONS[reward.type] || "🎉"}
-                </span>
+                <GameIcon name={REWARD_ICONS[reward.type] || "Sparkles"} size="2xl" variant="plain" color="yellow" />
               </motion.div>
 
               <motion.h2

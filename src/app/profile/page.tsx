@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Trophy, MapPin, Award, Star, Flame, BarChart3, Palette, ChevronRight, Users } from 'lucide-react';
+import GameIcon from "@/components/GameIcon";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -45,8 +46,9 @@ export default function ProfilePage() {
               {session?.user?.name?.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-          <div className="absolute -bottom-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full border-2 border-black">
-            {level.icon} {level.tier}
+          <div className="absolute -bottom-2 -right-2 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full border-2 border-black flex items-center gap-0.5">
+            <GameIcon name={level.icon} size="xs" variant="plain" color="text-black" />
+            {level.tier}
           </div>
         </div>
         <div>

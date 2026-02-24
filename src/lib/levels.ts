@@ -8,12 +8,12 @@ export interface Level {
 }
 
 export const LEVELS: Level[] = [
-  { tier: 1, name: "Rookie Sentinel", minPoints: 0, maxPoints: 99, icon: "🛡️", color: "text-zinc-400" },
-  { tier: 2, name: "Street Guardian", minPoints: 100, maxPoints: 499, icon: "⚔️", color: "text-blue-400" },
-  { tier: 3, name: "Ward Protector", minPoints: 500, maxPoints: 1499, icon: "🏛️", color: "text-green-400" },
-  { tier: 4, name: "Zone Commander", minPoints: 1500, maxPoints: 3999, icon: "👑", color: "text-purple-400" },
-  { tier: 5, name: "City Champion", minPoints: 4000, maxPoints: 9999, icon: "🌟", color: "text-yellow-400" },
-  { tier: 6, name: "Chennai Legend", minPoints: 10000, maxPoints: Infinity, icon: "🔱", color: "text-red-400" },
+  { tier: 1, name: "Rookie Sentinel", minPoints: 0, maxPoints: 99, icon: "Shield", color: "text-zinc-400" },
+  { tier: 2, name: "Street Guardian", minPoints: 100, maxPoints: 499, icon: "Swords", color: "text-blue-400" },
+  { tier: 3, name: "Ward Protector", minPoints: 500, maxPoints: 1499, icon: "Landmark", color: "text-green-400" },
+  { tier: 4, name: "Zone Commander", minPoints: 1500, maxPoints: 3999, icon: "Crown", color: "text-purple-400" },
+  { tier: 5, name: "City Champion", minPoints: 4000, maxPoints: 9999, icon: "Star", color: "text-yellow-400" },
+  { tier: 6, name: "Chennai Legend", minPoints: 10000, maxPoints: Infinity, icon: "Sparkles", color: "text-red-400" },
 ];
 
 export function getLevelFromPoints(points: number): Level {

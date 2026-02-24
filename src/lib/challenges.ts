@@ -26,7 +26,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     reward: 50,
     expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(),
     status: "active",
-    icon: "🌅",
+    icon: "Sunrise",
   },
   {
     id: "d2",
@@ -38,7 +38,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     reward: 75,
     expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(),
     status: "active",
-    icon: "✌️",
+    icon: "CheckCheck",
   },
   {
     id: "d3",
@@ -50,7 +50,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     reward: 60,
     expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(),
     status: "completed",
-    icon: "🗺️",
+    icon: "Map",
   },
   {
     id: "w1",
@@ -63,7 +63,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     bonusReward: "Zone Explorer Badge",
     expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(),
     status: "active",
-    icon: "🧹",
+    icon: "Brush",
   },
   {
     id: "w2",
@@ -75,7 +75,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     reward: 250,
     expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(),
     status: "active",
-    icon: "🕳️",
+    icon: "CircleAlert",
   },
   {
     id: "w3",
@@ -88,7 +88,7 @@ export const MOCK_CHALLENGES: Challenge[] = [
     bonusReward: "Community Star Badge",
     expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(),
     status: "active",
-    icon: "🤝",
+    icon: "Handshake",
   },
   {
     id: "s1",
@@ -101,6 +101,6 @@ export const MOCK_CHALLENGES: Challenge[] = [
     bonusReward: "Monsoon Warrior Badge",
     expiresAt: new Date(Date.now() + 30 * 86400000).toISOString(),
     status: "active",
-    icon: "🌧️",
+    icon: "CloudRain",
   },
 ];

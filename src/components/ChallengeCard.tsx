@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Clock, Check, Gift } from "lucide-react";
 import { type Challenge } from "@/lib/challenges";
+import GameIcon from "@/components/GameIcon";
 import { formatDistanceToNow } from "date-fns";
 
 interface ChallengeCardProps {
@@ -35,7 +36,7 @@ export default function ChallengeCard({
       <CardContent className="p-4 space-y-3">
         {/* Header */}
         <div className="flex items-start gap-3">
-          <span className="text-xl flex-shrink-0">{challenge.icon}</span>
+          <GameIcon name={challenge.icon} size="md" variant="badge" color="indigo" />
           <div className="flex-1 min-w-0">
             <h4 className="text-sm font-bold text-white">{challenge.title}</h4>
             <p className="text-xs text-zinc-500 mt-0.5">

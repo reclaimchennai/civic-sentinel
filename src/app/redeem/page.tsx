@@ -7,6 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Trophy, Gift, ShoppingBag, Lock, Clock, AlertTriangle, Sparkles, Package } from 'lucide-react';
+import GameIcon from "@/components/GameIcon";
 import { motion } from "framer-motion";
 import MysteryBoxReveal from "@/components/MysteryBoxReveal";
 import { MOCK_BOXES, type BoxRarity, type MysteryReward, BOX_CONFIG } from "@/lib/mysteryBox";
@@ -64,7 +65,7 @@ export default function RedeemPage() {
                   onClick={() => setOpeningBox(box.rarity)}
                   className={`flex-1 p-4 rounded-2xl border border-zinc-800 bg-gradient-to-br ${config.bgGradient} text-center`}
                 >
-                  <div className="text-3xl mb-1">📦</div>
+                  <div className="mb-1 flex justify-center"><GameIcon name="Package" size="xl" variant="plain" color="amber" /></div>
                   <p className={`text-xs font-bold ${config.color}`}>{config.label}</p>
                   <p className="text-[10px] text-zinc-500 mt-1">Tap to open</p>
                 </motion.button>

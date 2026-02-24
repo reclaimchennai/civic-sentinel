@@ -18,7 +18,7 @@ export const MOCK_EVENTS: GameEvent[] = [
     title: "Monsoon Watch",
     description:
       "Chennai monsoon season is here! Report drainage issues, waterlogging, and flood hazards to help the city prepare. All drainage-related reports earn bonus points.",
-    icon: "🌧️",
+    icon: "CloudRain",
     startDate: new Date(Date.now() - 7 * 86400000).toISOString(),
     endDate: new Date(Date.now() + 3 * 86400000).toISOString(),
     multiplier: 2.0,
@@ -36,7 +36,7 @@ export const MOCK_EVENTS: GameEvent[] = [
     title: "Republic Day Cleanup",
     description:
       "Celebrate Republic Day by keeping Chennai clean! Report sanitation violations, illegal dumping, and public space encroachments. Special 3x multiplier on all sanitation reports.",
-    icon: "🇮🇳",
+    icon: "Flag",
     startDate: new Date(Date.now() + 10 * 86400000).toISOString(),
     endDate: new Date(Date.now() + 17 * 86400000).toISOString(),
     multiplier: 3.0,

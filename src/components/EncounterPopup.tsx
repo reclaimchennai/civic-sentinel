@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect } from "react";
 import { type RandomEncounter } from "@/lib/randomEncounters";
+import GameIcon from "@/components/GameIcon";
 
 interface EncounterPopupProps {
   encounter: RandomEncounter | null;
@@ -43,13 +44,13 @@ export default function EncounterPopup({
             onClick={onDismiss}
           >
             {/* Icon */}
-            <motion.span
-              className="text-2xl flex-shrink-0"
+            <motion.div
+              className="flex-shrink-0"
               animate={{ scale: [1, 1.15, 1] }}
               transition={{ duration: 0.8, repeat: Infinity, repeatDelay: 1 }}
             >
-              {encounter.icon}
-            </motion.span>
+              <GameIcon name={encounter.icon} size="lg" variant="badge" color="green" />
+            </motion.div>
 
             {/* Content */}
             <div className="flex-1 min-w-0">

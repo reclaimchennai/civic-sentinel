@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { Users, Clock } from "lucide-react";
+import GameIcon from "@/components/GameIcon";
 import { useEffect, useState } from "react";
 
 interface Mission {
@@ -36,7 +37,7 @@ export const MOCK_MISSION: Mission = {
   title: "Clean Streets Week",
   description:
     "Report garbage, debris, and sanitation violations across Chennai. Let's make our streets spotless!",
-  icon: "🧹",
+  icon: "Brush",
   progress: 342,
   target: 500,
   participants: 89,
@@ -64,7 +65,7 @@ export default function MissionBanner({ mission }: MissionBannerProps) {
         {/* Header */}
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-2xl">{mission.icon}</span>
+            <GameIcon name={mission.icon} size="lg" variant="badge" color="indigo" />
             <div>
               <h3 className="text-sm font-bold text-white">{mission.title}</h3>
               <p className="text-xs text-zinc-400 leading-snug mt-0.5">
@@ -118,7 +119,7 @@ export default function MissionBanner({ mission }: MissionBannerProps) {
 
         {/* Reward */}
         <div className="bg-indigo-900/30 border border-indigo-800/50 rounded-lg px-3 py-2 flex items-center gap-2">
-          <span className="text-sm">🎁</span>
+          <GameIcon name="Gift" size="sm" variant="plain" color="indigo" />
           <span className="text-xs text-indigo-200 font-medium">
             Reward: {mission.reward}
           </span>

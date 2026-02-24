@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { Clock, Zap } from "lucide-react";
+import GameIcon from "@/components/GameIcon";
 import { useEffect, useState } from "react";
 
 interface EventBannerProps {
@@ -63,7 +64,7 @@ export default function EventBanner({ event }: EventBannerProps) {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xl">{event.icon}</span>
+              <GameIcon name={event.icon} size="sm" variant="plain" color="amber" />
               <h3 className="text-sm font-bold text-white">{event.title}</h3>
             </div>
             <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 hover:bg-orange-500/20">

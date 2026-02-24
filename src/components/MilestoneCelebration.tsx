@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useCallback } from "react";
 import confetti from "canvas-confetti";
 import { Button } from "@/components/ui/button";
+import GameIcon from "@/components/GameIcon";
 
 interface MilestoneCelebrationProps {
   milestone: {
@@ -79,14 +80,14 @@ export default function MilestoneCelebration({
             transition={{ type: "spring", damping: 15, stiffness: 200 }}
           >
             {/* Icon */}
-            <motion.span
-              className="text-6xl mb-4"
+            <motion.div
+              className="mb-4"
               initial={{ scale: 0 }}
               animate={{ scale: [0, 1.3, 1] }}
               transition={{ duration: 0.6, times: [0, 0.6, 1] }}
             >
-              {milestone.icon}
-            </motion.span>
+              <GameIcon name={milestone.icon} size="2xl" variant="glow" color="yellow" />
+            </motion.div>
 
             {/* Title */}
             <motion.h2
@@ -116,8 +117,9 @@ export default function MilestoneCelebration({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <span className="text-xs font-bold text-yellow-400">
-                  🏅 {milestone.badgeName}
+                <span className="text-xs font-bold text-yellow-400 flex items-center gap-1">
+                  <GameIcon name="Medal" size="xs" variant="plain" color="yellow" />
+                  {milestone.badgeName}
                 </span>
               </motion.div>
             )}

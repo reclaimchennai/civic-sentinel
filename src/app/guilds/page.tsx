@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Shield, Star, ChevronRight } from "lucide-react";
+import GameIcon from "@/components/GameIcon";
 import { motion } from "framer-motion";
 import { MOCK_GUILDS } from "@/lib/guilds";
 import Link from "next/link";
@@ -38,7 +39,7 @@ export default function GuildsPage() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center space-x-3">
-                      <span className="text-3xl">{guild.icon}</span>
+                      <GameIcon name={guild.icon} size="xl" variant="badge" color="yellow" />
                       <div>
                         <h3 className="font-bold text-zinc-100">{guild.name}</h3>
                         <p className="text-xs text-zinc-500 line-clamp-1">{guild.description}</p>

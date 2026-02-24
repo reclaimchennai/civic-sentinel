@@ -6,7 +6,7 @@ export async function GET() {
       id: "ev1",
       title: "Monsoon Readiness Drive",
       description: "Help prepare Chennai for monsoon season by reporting drainage issues",
-      icon: "🌧️",
+      icon: "CloudRain",
       startDate: new Date(Date.now() - 3 * 86400000).toISOString(),
       endDate: new Date(Date.now() + 3 * 86400000).toISOString(),
       multiplier: 2,

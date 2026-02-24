@@ -23,7 +23,7 @@ export const MOCK_GUILDS: Guild[] = [
     name: "T. Nagar Tigers",
     description:
       "The fiercest civic watchdogs in T. Nagar. We keep Ranganathan Street and Pondy Bazaar spotless.",
-    icon: "🐯",
+    icon: "Cat",
     memberCount: 24,
     maxMembers: 30,
     totalPoints: 18500,
@@ -48,7 +48,7 @@ export const MOCK_GUILDS: Guild[] = [
     name: "Adyar Avengers",
     description:
       "Protecting the Adyar estuary and neighbourhood streets. From Besant Nagar beach to IIT campus.",
-    icon: "🦅",
+    icon: "Bird",
     memberCount: 18,
     maxMembers: 25,
     totalPoints: 14200,
@@ -72,7 +72,7 @@ export const MOCK_GUILDS: Guild[] = [
     name: "Mylapore Monitors",
     description:
       "Heritage guardians of Mylapore. We protect the temple streets and historic lanes from civic neglect.",
-    icon: "🏛️",
+    icon: "Landmark",
     memberCount: 15,
     maxMembers: 20,
     totalPoints: 11800,
@@ -96,7 +96,7 @@ export const MOCK_GUILDS: Guild[] = [
     name: "Anna Nagar Alliance",
     description:
       "Organised civic watchers covering Anna Nagar East, West, and the Tower Park area. Streetlights are our specialty.",
-    icon: "🗼",
+    icon: "TowerControl",
     memberCount: 21,
     maxMembers: 30,
     totalPoints: 13600,
@@ -121,7 +121,7 @@ export const MOCK_GUILDS: Guild[] = [
     name: "Velachery Vigilantes",
     description:
       "Battling waterlogging and traffic chaos in Velachery. Every monsoon, we are on the frontlines.",
-    icon: "🌊",
+    icon: "Waves",
     memberCount: 12,
     maxMembers: 20,
     totalPoints: 8900,

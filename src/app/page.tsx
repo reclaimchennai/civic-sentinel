@@ -18,7 +18,7 @@ const MOCK_MISSION = {
   id: "m1",
   title: "Clean Streets Week",
   description: "Help Chennai achieve 500 street cleanliness reports this week",
-  icon: "🧹",
+  icon: "Brush",
   progress: 342,
   target: 500,
   participants: 89,
@@ -30,7 +30,7 @@ const MOCK_EVENT = {
   id: "ev1",
   title: "Monsoon Readiness Drive",
   description: "Report drainage issues before monsoon season",
-  icon: "🌧️",
+  icon: "CloudRain",
   endDate: new Date(Date.now() + 3 * 86400000).toISOString(),
   multiplier: 2,
   targetReports: 1000,
@@ -78,7 +78,7 @@ export default function Home() {
         setMilestone({
           title: "First Steps",
           description: "You submitted your first report!",
-          icon: "👣",
+          icon: "Footprints",
           badgeName: "Rookie Sentinel",
           reward: 50,
         });
