@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,15 +8,62 @@ import { Button } from "@/components/ui/button";
 import { Users, Trophy, Target, Crown, Shield, ArrowLeft } from "lucide-react";
 import GameIcon from "@/components/GameIcon";
 import { motion } from "framer-motion";
-import { MOCK_GUILDS } from "@/lib/guilds";
 import Link from "next/link";
+
+type GuildDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  memberCount: number;
+  maxMembers: number;
+  totalPoints: number;
+  level: number;
+  zone: string | null;
+  tags: string[];
+  currentChallenge: { title: string; progress: number; target: number } | null;
+  members: { handle: string; role: "leader" | "officer" | "member"; points: number }[];
+  isMember: boolean;
+};
 
 export default function GuildDetailPage() {
   const params = useParams();
   const guildId = params.id as string;
-  const guild = MOCK_GUILDS.find((g) => g.id === guildId);
+  const [guild, setGuild] = useState<GuildDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  if (!guild) {
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/guilds/${guildId}`)
+      .then((res) => {
+        if (res.status === 404) {
+          if (!cancelled) setNotFound(true);
+          return null;
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled || !data) return;
+        setGuild(data);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [guildId]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
+        <div className="text-center py-20 text-zinc-500 text-sm">Loading guild...</div>
+      </main>
+    );
+  }
+
+  if (notFound || !guild) {
     return (
       <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
         <Link href="/guilds" className="inline-flex items-center space-x-2 text-zinc-400 hover:text-white transition-colors mb-8">
@@ -30,9 +77,6 @@ export default function GuildDetailPage() {
       </main>
     );
   }
-
-  // Mock: first guild is one you are a member of
-  const isMember = guild.id === "g1";
 
   const getRoleIcon = (role: string) => {
     switch (role) {
@@ -58,13 +102,11 @@ export default function GuildDetailPage() {
 
   return (
     <main className="min-h-screen bg-black text-white p-6 pb-24 max-w-md mx-auto">
-      {/* Back button */}
       <Link href="/guilds" className="inline-flex items-center space-x-2 text-zinc-400 hover:text-white transition-colors mb-6">
         <ArrowLeft className="w-4 h-4" />
         <span className="text-sm">Back to Guilds</span>
       </Link>
 
-      {/* Guild header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -76,12 +118,14 @@ export default function GuildDetailPage() {
           </div>
           <CardContent className="p-6">
             <div className="flex items-center space-x-4 mb-3">
-              <GameIcon name={guild.icon} size="2xl" variant="glow" color="yellow" />
+              {guild.icon && <GameIcon name={guild.icon} size="2xl" variant="glow" color="yellow" />}
               <div>
                 <h1 className="text-2xl font-black text-white">{guild.name}</h1>
-                <Badge className="bg-zinc-800 text-zinc-400 border-zinc-700 mt-1">
-                  {guild.zone}
-                </Badge>
+                {guild.zone && (
+                  <Badge className="bg-zinc-800 text-zinc-400 border-zinc-700 mt-1">
+                    {guild.zone}
+                  </Badge>
+                )}
               </div>
             </div>
             <p className="text-zinc-400 text-sm">{guild.description}</p>
@@ -89,7 +133,6 @@ export default function GuildDetailPage() {
         </Card>
       </motion.div>
 
-      {/* Stats row */}
       <motion.div
         className="grid grid-cols-3 gap-3 mb-6"
         initial={{ opacity: 0, y: 20 }}
@@ -119,14 +162,13 @@ export default function GuildDetailPage() {
         </Card>
       </motion.div>
 
-      {/* Join / Member button */}
       <motion.div
         className="mb-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.15 }}
       >
-        {isMember ? (
+        {guild.isMember ? (
           <Button className="w-full bg-zinc-800 text-zinc-400 border border-zinc-700 cursor-default hover:bg-zinc-800" disabled>
             <Shield className="w-4 h-4 mr-2" />
             Member
@@ -138,7 +180,6 @@ export default function GuildDetailPage() {
         )}
       </motion.div>
 
-      {/* Current Challenge */}
       {guild.currentChallenge && (
         <motion.section
           className="mb-6"
@@ -162,7 +203,7 @@ export default function GuildDetailPage() {
                   className="h-full bg-yellow-500 rounded-full"
                   initial={{ width: 0 }}
                   animate={{
-                    width: `${(guild.currentChallenge.progress / guild.currentChallenge.target) * 100}%`,
+                    width: `${guild.currentChallenge.target > 0 ? (guild.currentChallenge.progress / guild.currentChallenge.target) * 100 : 0}%`,
                   }}
                   transition={{ duration: 0.8, delay: 0.3 }}
                 />
@@ -172,43 +213,46 @@ export default function GuildDetailPage() {
         </motion.section>
       )}
 
-      {/* Members list */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.25 }}
       >
         <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-3">Members</h3>
-        <div className="space-y-2">
-          {guild.members.map((member, i) => {
-            const initials = member.handle.replace("@", "").slice(0, 2).toUpperCase();
-            return (
-              <motion.div
-                key={member.handle}
-                className="flex items-center justify-between p-3 bg-zinc-900 border border-zinc-800 rounded-2xl"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: 0.3 + 0.05 * i }}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-300">
-                    {initials}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-zinc-200 text-sm">{member.handle}</p>
-                    <div className="flex items-center space-x-1.5 mt-0.5">
-                      {getRoleIcon(member.role)}
-                      <Badge className={`text-[10px] ${getRoleBadgeStyle(member.role)}`}>
-                        {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
-                      </Badge>
+        {guild.members.length === 0 ? (
+          <p className="text-xs text-zinc-600">No members yet. Be the first to join!</p>
+        ) : (
+          <div className="space-y-2">
+            {guild.members.map((member, i) => {
+              const initials = member.handle.replace("@", "").slice(0, 2).toUpperCase();
+              return (
+                <motion.div
+                  key={member.handle}
+                  className="flex items-center justify-between p-3 bg-zinc-900 border border-zinc-800 rounded-2xl"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: 0.3 + 0.05 * i }}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold text-zinc-300">
+                      {initials}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-zinc-200 text-sm">{member.handle}</p>
+                      <div className="flex items-center space-x-1.5 mt-0.5">
+                        {getRoleIcon(member.role)}
+                        <Badge className={`text-[10px] ${getRoleBadgeStyle(member.role)}`}>
+                          {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
+                        </Badge>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <span className="text-sm font-bold text-zinc-400">{member.points.toLocaleString()} pts</span>
-              </motion.div>
-            );
-          })}
-        </div>
+                  <span className="text-sm font-bold text-zinc-400">{member.points.toLocaleString()} pts</span>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </motion.section>
     </main>
   );

@@ -24,6 +24,10 @@ Chennai Civic Sentinel is a Progressive Web Application (PWA) designed to facili
 ### Data Layer
 - **Database:** PostgreSQL 15 + PostGIS (Spatial Data)
 - **Storage:** Local Filesystem (Prototype) / MinIO / S3 (Production)
+- **Database access split:**
+    - FastAPI (in Docker) → `db:5432` for reports/geo (`backend/db.py`)
+    - Next.js (on host) → `localhost:5455` for gamification endpoints (`src/lib/db.ts`, `pg` pool)
+    - The Next.js routes need NextAuth session context, so they query Postgres directly rather than proxying through FastAPI. `src/lib/ensureProfile.ts` upserts a profile row keyed by `session.user.id` (a TEXT column accepting any provider sub).
 
 ### Infrastructure
 - **Containerization:** Docker & Docker Compose

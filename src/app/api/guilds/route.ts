@@ -1,72 +1,66 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+type GuildRow = {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  member_count: number;
+  max_members: number;
+  total_points: number;
+  level: number;
+  primary_zone: string | null;
+  tags: string[];
+  challenge_title: string | null;
+  challenge_progress: number | null;
+  challenge_target: number | null;
+};
 
 export async function GET() {
-  const guilds = [
-    {
-      id: "g1",
-      name: "T. Nagar Tigers",
-      description: "Keeping T. Nagar clean and safe since 2024",
-      icon: "Cat",
-      memberCount: 24,
-      maxMembers: 30,
-      totalPoints: 45200,
-      level: 5,
-      zone: "T. Nagar",
-      tags: ["Active", "Top Ranked"],
-      currentChallenge: { title: "Report 50 violations this week", progress: 38, target: 50 }
-    },
-    {
-      id: "g2",
-      name: "Adyar Avengers",
-      description: "Defending Adyar's streets one report at a time",
-      icon: "Bird",
-      memberCount: 18,
-      maxMembers: 25,
-      totalPoints: 32100,
-      level: 4,
-      zone: "Adyar",
-      tags: ["Competitive", "Rising"],
-      currentChallenge: { title: "Cover all Adyar wards", progress: 7, target: 12 }
-    },
-    {
-      id: "g3",
-      name: "Mylapore Monitors",
-      description: "Heritage area guardians preserving Mylapore",
-      icon: "Landmark",
-      memberCount: 15,
-      maxMembers: 20,
-      totalPoints: 28500,
-      level: 3,
-      zone: "Mylapore",
-      tags: ["Heritage Focus"],
-      currentChallenge: { title: "Document 30 encroachment issues", progress: 22, target: 30 }
-    },
-    {
-      id: "g4",
-      name: "Anna Nagar Alliance",
-      description: "United for better infrastructure in Anna Nagar",
-      icon: "TowerControl",
-      memberCount: 21,
-      maxMembers: 30,
-      totalPoints: 38900,
-      level: 4,
-      zone: "Anna Nagar",
-      tags: ["Friendly", "Active"],
-      currentChallenge: { title: "Report 40 streetlight issues", progress: 15, target: 40 }
-    },
-    {
-      id: "g5",
-      name: "Velachery Vigilantes",
-      description: "Fighting flooding and civic issues in Velachery",
-      icon: "Waves",
-      memberCount: 12,
-      maxMembers: 20,
-      totalPoints: 19800,
-      level: 2,
-      zone: "Velachery",
-      tags: ["New", "Drainage Focus"],
-      currentChallenge: { title: "Map all drainage blocks", progress: 8, target: 25 }
-    }
-  ];
-  return NextResponse.json(guilds);
+  const result = await query<GuildRow>(
+    `SELECT
+       g.id, g.name, g.description, g.icon, g.max_members, g.total_points,
+       g.level, g.primary_zone, g.tags,
+       COALESCE(mc.member_count, 0)::int AS member_count,
+       gc.title AS challenge_title,
+       gc.progress AS challenge_progress,
+       gc.target AS challenge_target
+     FROM guilds g
+     LEFT JOIN (
+       SELECT guild_id, COUNT(*)::int AS member_count
+       FROM guild_memberships GROUP BY guild_id
+     ) mc ON mc.guild_id = g.id
+     LEFT JOIN LATERAL (
+       SELECT title, progress, target
+       FROM guild_challenges
+       WHERE guild_id = g.id AND is_active AND ends_at > NOW()
+       ORDER BY ends_at ASC LIMIT 1
+     ) gc ON true
+     ORDER BY g.total_points DESC`
+  );
+
+  return NextResponse.json(
+    result.rows.map((g) => ({
+      id: g.id,
+      name: g.name,
+      description: g.description,
+      icon: g.icon,
+      memberCount: g.member_count,
+      maxMembers: g.max_members,
+      totalPoints: g.total_points,
+      level: g.level,
+      zone: g.primary_zone,
+      tags: g.tags ?? [],
+      currentChallenge: g.challenge_title
+        ? {
+            title: g.challenge_title,
+            progress: g.challenge_progress ?? 0,
+            target: g.challenge_target ?? 0,
+          }
+        : null,
+    }))
+  );
 }

@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS missions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(100) NOT NULL,
     description TEXT,
-    icon VARCHAR(10),
+    icon VARCHAR(50),
     target_reports INT NOT NULL,
     current_reports INT DEFAULT 0,
     reward_points INT DEFAULT 0,
@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS challenges (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(100) NOT NULL,
     description TEXT,
-    icon VARCHAR(10),
+    icon VARCHAR(50),
     type VARCHAR(20) NOT NULL CHECK (type IN ('daily', 'weekly', 'seasonal')),
     target INT NOT NULL,
     reward_points INT DEFAULT 0,
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     title VARCHAR(100) NOT NULL,
     description TEXT,
-    icon VARCHAR(10),
+    icon VARCHAR(50),
     multiplier DECIMAL(3,1) DEFAULT 1.0,
     target_reports INT NOT NULL,
     current_reports INT DEFAULT 0,
@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS guilds (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
-    icon VARCHAR(10),
+    icon VARCHAR(50),
     max_members INT DEFAULT 30,
     total_points INT DEFAULT 0,
     level INT DEFAULT 1,
@@ -211,10 +211,11 @@ CREATE TABLE IF NOT EXISTS streak_history (
 -- ============================================
 -- USER REWARDS (Redeemed items)
 -- ============================================
+-- Note: reward_id is INTEGER to match rewards_catalog.id (SERIAL).
 CREATE TABLE IF NOT EXISTS user_rewards (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-    reward_id UUID REFERENCES rewards_catalog(id) ON DELETE SET NULL,
+    reward_id INTEGER REFERENCES rewards_catalog(id) ON DELETE SET NULL,
     redeemed_at TIMESTAMPTZ DEFAULT NOW(),
     status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'fulfilled', 'expired'))
 );
@@ -276,6 +277,17 @@ CREATE TABLE IF NOT EXISTS user_achievements (
 -- ============================================
 -- ALTER EXISTING TABLES
 -- ============================================
+
+-- NextAuth session IDs are arbitrary strings (provider sub, "demo-user-001", etc.),
+-- not UUIDs. Widen profiles.user_id so we can store them verbatim.
+ALTER TABLE profiles ALTER COLUMN user_id TYPE TEXT;
+
+-- Icon columns originally sized for emoji (VARCHAR(10)). The UI now uses
+-- Lucide icon NAMES (e.g. "CircleAlert"), some of which exceed 10 chars.
+ALTER TABLE missions   ALTER COLUMN icon TYPE VARCHAR(50);
+ALTER TABLE challenges ALTER COLUMN icon TYPE VARCHAR(50);
+ALTER TABLE events     ALTER COLUMN icon TYPE VARCHAR(50);
+ALTER TABLE guilds     ALTER COLUMN icon TYPE VARCHAR(50);
 
 -- Add gamification fields to profiles
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS current_streak INT DEFAULT 0;

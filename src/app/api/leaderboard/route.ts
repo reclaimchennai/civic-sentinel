@@ -1,71 +1,117 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
+
+export const dynamic = "force-dynamic";
+
+type EntryRow = {
+  user_id: string;
+  current_points: number;
+  total_points_earned: number;
+  reports: number;
+  zone: string | null;
+  title: string;
+};
+
+type RisingRow = { user_id: string; points_gained: number; zone: string | null };
+
+const TIMEFRAME_INTERVALS: Record<string, string | null> = {
+  daily: "1 day",
+  weekly: "7 days",
+  monthly: "30 days",
+  allTime: null,
+};
+
+function handleFor(userId: string): string {
+  return "@" + userId.replace(/[^A-Za-z0-9]/g, "").slice(0, 16);
+}
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
-  const timeframe = searchParams.get('timeframe') || 'allTime';
-  const scope = searchParams.get('scope') || 'city';
+  const timeframe = searchParams.get("timeframe") ?? "allTime";
+  const interval = TIMEFRAME_INTERVALS[timeframe] ?? null;
 
-  const allTimeEntries = [
-    { rank: 1, handle: "@ChennaiSuperUser", points: 4500, reports: 156, zone: "T. Nagar", badge: "Mayor", avatar: "/avatars/default.png" },
-    { rank: 2, handle: "@AdyarWarrior", points: 3850, reports: 132, zone: "Adyar", badge: "Zone Hero", avatar: "/avatars/default.png" },
-    { rank: 3, handle: "@MylaporeMani", points: 3200, reports: 118, zone: "Mylapore", badge: "Heritage Guardian", avatar: "/avatars/default.png" },
-    { rank: 4, handle: "@AnnaNagarAnand", points: 2900, reports: 104, zone: "Anna Nagar", badge: "Road Warrior", avatar: "/avatars/default.png" },
-    { rank: 5, handle: "@VelacheryVijay", points: 2450, reports: 89, zone: "Velachery", badge: "Flood Fighter", avatar: "/avatars/default.png" },
-    { rank: 6, handle: "@TambramTiger", points: 2100, reports: 76, zone: "Tambaram", badge: "Night Owl", avatar: "/avatars/default.png" },
-    { rank: 7, handle: "@ShozhaganStar", points: 1800, reports: 64, zone: "Sholinganallur", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-    { rank: 8, handle: "@KodamPatrol", points: 1550, reports: 52, zone: "Kodambakkam", badge: "Pothole Paladin", avatar: "/avatars/default.png" },
-  ];
+  // For timeframed views we rank by recent report count.
+  // For all-time we rank by total_points_earned.
+  const entries = interval
+    ? await query<EntryRow>(
+        `SELECT
+           p.user_id,
+           p.current_points,
+           p.total_points_earned,
+           COUNT(r.*)::int AS reports,
+           z.name AS zone,
+           p.title
+         FROM profiles p
+         LEFT JOIN reports r
+           ON r.user_id = p.id AND r.created_at >= NOW() - $1::interval
+         LEFT JOIN LATERAL (
+           SELECT z.name FROM reports r2
+           JOIN zones z ON z.id = r2.zone_id
+           WHERE r2.user_id = p.id
+           GROUP BY z.name
+           ORDER BY COUNT(*) DESC
+           LIMIT 1
+         ) z ON true
+         GROUP BY p.user_id, p.current_points, p.total_points_earned, z.name, p.title
+         HAVING COUNT(r.*) > 0
+         ORDER BY reports DESC, p.current_points DESC
+         LIMIT 25`,
+        [interval]
+      )
+    : await query<EntryRow>(
+        `SELECT
+           p.user_id,
+           p.current_points,
+           p.total_points_earned,
+           (SELECT COUNT(*)::int FROM reports r WHERE r.user_id = p.id) AS reports,
+           z.name AS zone,
+           p.title
+         FROM profiles p
+         LEFT JOIN LATERAL (
+           SELECT z.name FROM reports r2
+           JOIN zones z ON z.id = r2.zone_id
+           WHERE r2.user_id = p.id
+           GROUP BY z.name
+           ORDER BY COUNT(*) DESC
+           LIMIT 1
+         ) z ON true
+         ORDER BY p.total_points_earned DESC
+         LIMIT 25`
+      );
 
-  const weeklyEntries = [
-    { rank: 1, handle: "@AdyarWarrior", points: 620, reports: 22, zone: "Adyar", badge: "Zone Hero", avatar: "/avatars/default.png" },
-    { rank: 2, handle: "@ChennaiSuperUser", points: 580, reports: 19, zone: "T. Nagar", badge: "Mayor", avatar: "/avatars/default.png" },
-    { rank: 3, handle: "@VelacheryVijay", points: 490, reports: 17, zone: "Velachery", badge: "Flood Fighter", avatar: "/avatars/default.png" },
-    { rank: 4, handle: "@NewbieStar", points: 450, reports: 16, zone: "T. Nagar", badge: "Rising Star", avatar: "/avatars/default.png" },
-    { rank: 5, handle: "@MylaporeMani", points: 410, reports: 14, zone: "Mylapore", badge: "Heritage Guardian", avatar: "/avatars/default.png" },
-    { rank: 6, handle: "@QuickRiser", points: 380, reports: 13, zone: "Adyar", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-    { rank: 7, handle: "@AnnaNagarAnand", points: 340, reports: 12, zone: "Anna Nagar", badge: "Road Warrior", avatar: "/avatars/default.png" },
-    { rank: 8, handle: "@FreshFace", points: 320, reports: 11, zone: "Velachery", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-  ];
+  // Rising stars: top movers by reports in the last 7 days.
+  const rising = await query<RisingRow>(
+    `SELECT p.user_id,
+            COUNT(r.*)::int * 25 AS points_gained,
+            z.name AS zone
+     FROM profiles p
+     JOIN reports r ON r.user_id = p.id AND r.created_at >= NOW() - INTERVAL '7 days'
+     LEFT JOIN LATERAL (
+       SELECT z.name FROM reports r2
+       JOIN zones z ON z.id = r2.zone_id
+       WHERE r2.user_id = p.id
+       GROUP BY z.name ORDER BY COUNT(*) DESC LIMIT 1
+     ) z ON true
+     GROUP BY p.user_id, z.name
+     ORDER BY points_gained DESC
+     LIMIT 3`
+  );
 
-  const monthlyEntries = [
-    { rank: 1, handle: "@ChennaiSuperUser", points: 1850, reports: 62, zone: "T. Nagar", badge: "Mayor", avatar: "/avatars/default.png" },
-    { rank: 2, handle: "@AdyarWarrior", points: 1720, reports: 58, zone: "Adyar", badge: "Zone Hero", avatar: "/avatars/default.png" },
-    { rank: 3, handle: "@MylaporeMani", points: 1480, reports: 49, zone: "Mylapore", badge: "Heritage Guardian", avatar: "/avatars/default.png" },
-    { rank: 4, handle: "@VelacheryVijay", points: 1320, reports: 44, zone: "Velachery", badge: "Flood Fighter", avatar: "/avatars/default.png" },
-    { rank: 5, handle: "@AnnaNagarAnand", points: 1150, reports: 38, zone: "Anna Nagar", badge: "Road Warrior", avatar: "/avatars/default.png" },
-    { rank: 6, handle: "@NewbieStar", points: 980, reports: 33, zone: "T. Nagar", badge: "Rising Star", avatar: "/avatars/default.png" },
-    { rank: 7, handle: "@TambramTiger", points: 870, reports: 29, zone: "Tambaram", badge: "Night Owl", avatar: "/avatars/default.png" },
-    { rank: 8, handle: "@ShozhaganStar", points: 760, reports: 25, zone: "Sholinganallur", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-  ];
-
-  const dailyEntries = [
-    { rank: 1, handle: "@VelacheryVijay", points: 120, reports: 5, zone: "Velachery", badge: "Flood Fighter", avatar: "/avatars/default.png" },
-    { rank: 2, handle: "@AdyarWarrior", points: 105, reports: 4, zone: "Adyar", badge: "Zone Hero", avatar: "/avatars/default.png" },
-    { rank: 3, handle: "@NewbieStar", points: 95, reports: 4, zone: "T. Nagar", badge: "Rising Star", avatar: "/avatars/default.png" },
-    { rank: 4, handle: "@ChennaiSuperUser", points: 80, reports: 3, zone: "T. Nagar", badge: "Mayor", avatar: "/avatars/default.png" },
-    { rank: 5, handle: "@MylaporeMani", points: 70, reports: 3, zone: "Mylapore", badge: "Heritage Guardian", avatar: "/avatars/default.png" },
-    { rank: 6, handle: "@QuickRiser", points: 60, reports: 2, zone: "Adyar", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-    { rank: 7, handle: "@KodamPatrol", points: 45, reports: 2, zone: "Kodambakkam", badge: "Pothole Paladin", avatar: "/avatars/default.png" },
-    { rank: 8, handle: "@FreshFace", points: 35, reports: 1, zone: "Velachery", badge: "Rookie Sentinel", avatar: "/avatars/default.png" },
-  ];
-
-  const entriesMap: Record<string, typeof allTimeEntries> = {
-    allTime: allTimeEntries,
-    weekly: weeklyEntries,
-    monthly: monthlyEntries,
-    daily: dailyEntries,
-  };
-
-  const entries = entriesMap[timeframe] || allTimeEntries;
-
-  const data = {
-    entries,
-    risingStars: [
-      { handle: "@NewbieStar", zone: "T. Nagar", pointsGained: 450, period: "This Week" },
-      { handle: "@QuickRiser", zone: "Adyar", pointsGained: 380, period: "This Week" },
-      { handle: "@FreshFace", zone: "Velachery", pointsGained: 320, period: "This Week" },
-    ],
-  };
-
-  return NextResponse.json(data);
+  return NextResponse.json({
+    entries: entries.rows.map((e, i) => ({
+      rank: i + 1,
+      handle: handleFor(e.user_id),
+      points: timeframe === "allTime" ? e.total_points_earned : e.current_points,
+      reports: e.reports,
+      zone: e.zone,
+      badge: e.title,
+      avatar: "/avatars/default.png",
+    })),
+    risingStars: rising.rows.map((r) => ({
+      handle: handleFor(r.user_id),
+      zone: r.zone,
+      pointsGained: r.points_gained,
+      period: "This Week",
+    })),
+  });
 }

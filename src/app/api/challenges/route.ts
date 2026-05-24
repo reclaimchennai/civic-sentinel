@@ -1,20 +1,58 @@
-import { NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { query } from "@/lib/db";
+import { auth } from "@/auth";
+import { ensureProfile } from "@/lib/ensureProfile";
+
+export const dynamic = "force-dynamic";
+
+type ChallengeRow = {
+  id: string;
+  title: string;
+  description: string | null;
+  icon: string | null;
+  type: "daily" | "weekly" | "seasonal";
+  target: number;
+  reward_points: number;
+  bonus_reward: string | null;
+  ends_at: string;
+  progress: number | null;
+  status: "active" | "completed" | "claimed" | "expired" | null;
+};
 
 export async function GET() {
-  const challenges = {
-    daily: [
-      { id: "d1", title: "Early Bird", description: "Submit a report before 8 AM", type: "daily", target: 1, progress: 0, reward: 50, expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(), status: "active", icon: "Sunrise" },
-      { id: "d2", title: "Double Trouble", description: "Report 2 different violation types", type: "daily", target: 2, progress: 1, reward: 75, expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(), status: "active", icon: "CheckCheck" },
-      { id: "d3", title: "Zone Explorer", description: "File a report in a new zone", type: "daily", target: 1, progress: 1, reward: 60, expiresAt: new Date(Date.now() + 8 * 3600000).toISOString(), status: "completed", icon: "Map" },
-    ],
-    weekly: [
-      { id: "w1", title: "Chennai Sweep", description: "File reports in 3 different zones", type: "weekly", target: 3, progress: 2, reward: 200, bonusReward: "Zone Explorer Badge", expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(), status: "active", icon: "Brush" },
-      { id: "w2", title: "Pothole Hunter", description: "Report 5 road-related violations", type: "weekly", target: 5, progress: 3, reward: 250, expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(), status: "active", icon: "CircleAlert" },
-      { id: "w3", title: "Community Pillar", description: "Get 10 endorsements on your reports", type: "weekly", target: 10, progress: 4, reward: 300, bonusReward: "Community Star Badge", expiresAt: new Date(Date.now() + 5 * 86400000).toISOString(), status: "active", icon: "Handshake" },
-    ],
-    seasonal: [
-      { id: "s1", title: "Monsoon Watch", description: "Report 15 drainage/flooding issues this season", type: "seasonal", target: 15, progress: 7, reward: 1000, bonusReward: "Monsoon Warrior Badge", expiresAt: new Date(Date.now() + 30 * 86400000).toISOString(), status: "active", icon: "CloudRain" },
-    ]
-  };
-  return NextResponse.json(challenges);
+  const session = await auth();
+  const profileId = session?.user?.id ? (await ensureProfile(session.user.id)).id : null;
+
+  const result = await query<ChallengeRow>(
+    `SELECT
+       c.id, c.title, c.description, c.icon, c.type, c.target,
+       c.reward_points, c.bonus_reward, c.ends_at,
+       ucp.progress, ucp.status
+     FROM challenges c
+     LEFT JOIN user_challenge_progress ucp
+       ON ucp.challenge_id = c.id AND ucp.user_id = $1
+     WHERE c.is_active AND c.ends_at > NOW()
+     ORDER BY c.type, c.ends_at ASC`,
+    [profileId]
+  );
+
+  const toEntry = (c: ChallengeRow) => ({
+    id: c.id,
+    title: c.title,
+    description: c.description,
+    type: c.type,
+    target: c.target,
+    progress: c.progress ?? 0,
+    reward: c.reward_points,
+    bonusReward: c.bonus_reward ?? undefined,
+    expiresAt: c.ends_at,
+    status: c.status ?? "active",
+    icon: c.icon,
+  });
+
+  return NextResponse.json({
+    daily: result.rows.filter((r) => r.type === "daily").map(toEntry),
+    weekly: result.rows.filter((r) => r.type === "weekly").map(toEntry),
+    seasonal: result.rows.filter((r) => r.type === "seasonal").map(toEntry),
+  });
 }
