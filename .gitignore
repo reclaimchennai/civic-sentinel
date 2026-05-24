@@ -49,3 +49,7 @@ backend/.env
 # Claude Code
 .claude/
 CLAUDE.md
+
+# Large source assets (GeoJSONs derived from these PDFs are checked in)
+*.pdf
+*.pdf.aux.xml
