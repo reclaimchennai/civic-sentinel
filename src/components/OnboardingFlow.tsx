@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Camera, Trophy, Shield } from "lucide-react";
@@ -37,14 +37,12 @@ const slides: Slide[] = [
 
 export default function OnboardingFlow() {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const completed = localStorage.getItem(STORAGE_KEY);
-    if (!completed) {
-      setIsVisible(true);
-    }
-  }, []);
+  // Compute the initial visibility synchronously to avoid an effect that
+  // calls setState (which causes the cascading-render lint error).
+  const [isVisible, setIsVisible] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(STORAGE_KEY) === null;
+  });
 
   const handleNext = () => {
     if (currentSlide < slides.length - 1) {
@@ -76,7 +74,6 @@ export default function OnboardingFlow() {
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Icon */}
             <motion.div
               className={`mb-6 ${slide.color}`}
               initial={{ scale: 0.8 }}
@@ -86,17 +83,12 @@ export default function OnboardingFlow() {
               {slide.icon}
             </motion.div>
 
-            {/* Title */}
-            <h2 className="text-2xl font-black text-white mb-2">
-              {slide.title}
-            </h2>
+            <h2 className="text-2xl font-black text-white mb-2">{slide.title}</h2>
 
-            {/* Description */}
             <p className="text-zinc-400 text-sm">{slide.description}</p>
           </motion.div>
         </AnimatePresence>
 
-        {/* Dot indicators */}
         <div className="flex items-center gap-2 mt-10 mb-8">
           {slides.map((_, i) => (
             <motion.div
@@ -109,7 +101,6 @@ export default function OnboardingFlow() {
           ))}
         </div>
 
-        {/* Action buttons */}
         <div className="w-full space-y-3">
           <Button
             onClick={handleNext}

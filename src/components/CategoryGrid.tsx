@@ -37,7 +37,7 @@ export default function CategoryGrid({ onSelect }: { onSelect: (category: string
   return (
     <div className="grid grid-cols-2 gap-4">
       {categories.map((cat) => {
-        const Icon = (Icons as any)[cat.icon];
+        const Icon = (Icons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[cat.icon];
         return (
           <Drawer key={cat.id}>
             <DrawerTrigger asChild>

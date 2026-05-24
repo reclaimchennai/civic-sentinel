@@ -13,6 +13,16 @@ import OnboardingFlow from '@/components/OnboardingFlow';
 import EncounterPopup from '@/components/EncounterPopup';
 import MilestoneCelebration from '@/components/MilestoneCelebration';
 import { rollEncounter, type RandomEncounter } from '@/lib/randomEncounters';
+import { MILESTONES, type Milestone } from '@/lib/milestones';
+
+type ReportLocation = {
+  lat: number;
+  lng: number;
+  zone?: string;
+  ward?: string;
+  zone_number?: number;
+  zone_name?: string;
+};
 
 const MOCK_MISSION = {
   id: "m1",
@@ -40,7 +50,7 @@ const MOCK_EVENT = {
 export default function Home() {
   const [reportData, setReportData] = useState<{
     image: File | null;
-    location: any;
+    location: ReportLocation | null;
     category: string;
     subCategory: string;
     severity: number;
@@ -58,7 +68,7 @@ export default function Home() {
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [encounter, setEncounter] = useState<RandomEncounter | null>(null);
-  const [milestone, setMilestone] = useState<any>(null);
+  const [milestone, setMilestone] = useState<Milestone | null>(null);
 
   const handleSubmit = () => {
     console.log("Submitting Report:", reportData);
@@ -74,15 +84,8 @@ export default function Home() {
     const submitCount = parseInt(localStorage.getItem('cs_submit_count') || '0') + 1;
     localStorage.setItem('cs_submit_count', String(submitCount));
     if (submitCount === 1) {
-      setTimeout(() => {
-        setMilestone({
-          title: "First Steps",
-          description: "You submitted your first report!",
-          icon: "Footprints",
-          badgeName: "Rookie Sentinel",
-          reward: 50,
-        });
-      }, 2500);
+      const firstStep = MILESTONES.find((m) => m.id === "m1") ?? null;
+      if (firstStep) setTimeout(() => setMilestone(firstStep), 2500);
     }
 
     setTimeout(() => setIsSubmitted(false), 3000);

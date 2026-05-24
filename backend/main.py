@@ -23,7 +23,8 @@ async def report_violation(
     file: UploadFile = File(...),
     violation_type_id: int = Form(...),
     lat: Optional[float] = Form(None),
-    lng: Optional[float] = Form(None)
+    lng: Optional[float] = Form(None),
+    user_id: Optional[str] = Form(None)
 ):
     try:
         # 1. Save uploaded file temporarily
@@ -71,7 +72,8 @@ async def report_violation(
             area=area,
             ward=ward,
             zone_number=zone_no,
-            zone_name=zone_name
+            zone_name=zone_name,
+            user_id=user_id
         )
 
         return ViolationResponse(

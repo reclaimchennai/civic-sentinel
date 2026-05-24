@@ -25,6 +25,9 @@ const rewards = [
 export default function RedeemPage() {
   const { data: session, status } = useSession();
   const [openingBox, setOpeningBox] = useState<BoxRarity | null>(null);
+  // Lock "now" to mount time so the expires-at countdown helper stays
+  // pure (react-hooks/purity rule disallows Date.now() during render).
+  const [now] = useState<number>(() => Date.now());
 
   const userPoints = status === "authenticated" && session?.user?.id === "demo-user-001" ? 450 : 0;
   const userLevel = status === "authenticated" && session?.user?.id === "demo-user-001" ? 5 : 1;
@@ -83,13 +86,13 @@ export default function RedeemPage() {
         </TabsList>
 
         <TabsContent value="all" className="space-y-4">
-          {rewards.map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} />)}
+          {rewards.map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} now={now} />)}
         </TabsContent>
         <TabsContent value="merch" className="space-y-4">
-          {rewards.filter(r => r.type === 'merch').map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} />)}
+          {rewards.filter(r => r.type === 'merch').map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} now={now} />)}
         </TabsContent>
         <TabsContent value="coupons" className="space-y-4">
-          {rewards.filter(r => r.type === 'coupon').map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} />)}
+          {rewards.filter(r => r.type === 'coupon').map(reward => <RewardCard key={reward.id} reward={reward} userPoints={userPoints} userLevel={userLevel} now={now} />)}
         </TabsContent>
       </Tabs>
 
@@ -105,13 +108,15 @@ export default function RedeemPage() {
   );
 }
 
-function RewardCard({ reward, userPoints, userLevel }: { reward: any, userPoints: number, userLevel: number }) {
+type Reward = (typeof rewards)[number];
+
+function RewardCard({ reward, userPoints, userLevel, now }: { reward: Reward; userPoints: number; userLevel: number; now: number }) {
   const canAfford = userPoints >= reward.cost;
   const meetsLevel = userLevel >= reward.minLevel;
   const isAvailable = canAfford && meetsLevel;
 
   const getTimeLeft = (expiresAt: string) => {
-    const diff = new Date(expiresAt).getTime() - Date.now();
+    const diff = new Date(expiresAt).getTime() - now;
     const days = Math.floor(diff / 86400000);
     const hours = Math.floor((diff % 86400000) / 3600000);
     if (days > 0) return `${days}d ${hours}h left`;

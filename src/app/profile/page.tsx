@@ -14,10 +14,36 @@ import LevelProgressBar from "@/components/LevelProgressBar";
 import StreakDisplay from "@/components/StreakDisplay";
 import { getLevelFromPoints } from "@/lib/levels";
 
+type UserStats = {
+  name: string | null;
+  email: string | null;
+  level: number;
+  points: number;
+  nextLevelPoints: number;
+  reports: number;
+  approved: number;
+  badges: Array<{ name: string; image: string }>;
+  mayorship: string;
+  bio: string;
+  joinedAt: string;
+  streak: {
+    currentStreak: number;
+    longestStreak: number;
+    lastActiveDate: string;
+    isAtRisk: boolean;
+    streakShields: number;
+    weeklyActivity: boolean[];
+  };
+  title: string;
+  activeChallenges: number;
+  guildName: string | null;
+  endorsements: number;
+};
+
 export default function ProfilePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -125,7 +151,7 @@ export default function ProfilePage() {
         <div>
           <h3 className="text-sm font-semibold text-zinc-500 uppercase tracking-wider mb-4">Badges</h3>
           <div className="flex flex-wrap gap-4">
-            {userStats.badges.map((badge: any) => (
+            {userStats.badges.map((badge) => (
               <div key={badge.name} className="flex flex-col items-center space-y-1">
                 <div className="w-16 h-16 rounded-2xl bg-zinc-900 border border-zinc-800 p-2 flex items-center justify-center hover:border-zinc-500 transition-all cursor-help" title={badge.name}>
                   <img src={badge.image} alt={badge.name} className="w-full h-full object-contain" />

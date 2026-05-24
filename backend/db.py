@@ -12,17 +12,17 @@ def get_db_connection():
         password=os.getenv("POSTGRES_PASSWORD", "postgres")
     )
 
-def save_violation_report(image_path, lat, lng, timestamp, violation_type_id, area, ward, zone_number, zone_name):
+def save_violation_report(image_path, lat, lng, timestamp, violation_type_id, area, ward, zone_number, zone_name, user_id=None):
     conn = get_db_connection()
     cur = conn.cursor()
-    
+
     try:
         query = """
-        INSERT INTO reports (image_url, lat, lng, created_at, sub_category_id, area, ward, zone_number, zone_name, status)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+        INSERT INTO reports (image_url, lat, lng, created_at, sub_category_id, area, ward, zone_number, zone_name, status, user_id)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s)
         RETURNING id;
         """
-        cur.execute(query, (image_path, lat, lng, timestamp, violation_type_id, area, ward, zone_number, zone_name))
+        cur.execute(query, (image_path, lat, lng, timestamp, violation_type_id, area, ward, zone_number, zone_name, user_id))
         report_id = cur.fetchone()[0]
         conn.commit()
         return report_id
