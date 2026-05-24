@@ -48,35 +48,55 @@ const earnedBadgeIds = new Set(["b1", "b2", "b3", "b4"]);
 
 export default function CustomizePage() {
   const [selectedFrame, setSelectedFrame] = useState("af1");
-  const [selectedTitle, setSelectedTitle] = useState("t1");
+  const [selectedTitle, setSelectedTitle] = useState("Civic Guardian");
   const [showcaseBadges, setShowcaseBadges] = useState<string[]>(["b1", "b2", "b3"]);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const persist = async (patch: { title?: string; avatarFrame?: string; showcaseBadges?: string[] }) => {
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const res = await fetch("/api/user/profile/customize", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) setSaveError((await res.json()).error ?? "Save failed");
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleFrameSelect = (frame: AvatarFrame) => {
     if (!frame.unlocked) return;
     setSelectedFrame(frame.id);
-    alert("Customization saved!");
+    persist({ avatarFrame: frame.id });
   };
 
   const handleTitleSelect = (title: Title) => {
     if (!title.unlocked) return;
-    setSelectedTitle(title.id);
-    alert("Customization saved!");
+    setSelectedTitle(title.label);
+    persist({ title: title.label });
   };
 
   const handleBadgeToggle = (badgeId: string) => {
     if (!earnedBadgeIds.has(badgeId)) return;
 
     setShowcaseBadges((prev) => {
+      let next: string[];
       if (prev.includes(badgeId)) {
-        return prev.filter((id) => id !== badgeId);
+        next = prev.filter((id) => id !== badgeId);
+      } else if (prev.length >= 3) {
+        next = [...prev.slice(0, 2), badgeId];
+      } else {
+        next = [...prev, badgeId];
       }
-      if (prev.length >= 3) {
-        // Replace the last slot
-        return [...prev.slice(0, 2), badgeId];
-      }
-      return [...prev, badgeId];
+      persist({ showcaseBadges: next });
+      return next;
     });
-    alert("Customization saved!");
   };
 
   return (
@@ -93,6 +113,8 @@ export default function CustomizePage() {
           <h1 className="text-2xl font-black tracking-tight uppercase italic">Customize</h1>
         </div>
         <p className="text-zinc-400 text-sm">Make it yours.</p>
+        {saving && <p className="text-xs text-zinc-500 mt-2">Saving...</p>}
+        {saveError && <p className="text-xs text-red-400 mt-2">{saveError}</p>}
       </header>
 
       {/* Avatar Frames */}

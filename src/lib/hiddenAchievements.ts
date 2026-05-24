@@ -1,74 +1,89 @@
+export type AchievementRarity = "common" | "rare" | "epic" | "legendary";
+
 export interface HiddenAchievement {
   id: string;
-  title: string;
+  name: string;
   hint: string;
   description: string;
   icon: string;
-  condition: string;
-  reward: number;
-  unlocked: boolean;
+  rarity: AchievementRarity;
+  pointsReward: number;
+  // Detection contract: the check route's matches() switch on `id`.
+  // Adding an entry here without also updating the matches() function
+  // means it will never unlock.
 }
 
 export const HIDDEN_ACHIEVEMENTS: HiddenAchievement[] = [
   {
-    id: "h1",
-    title: "Night Owl",
+    id: "midnight_warrior",
+    name: "Night Owl",
     hint: "The city never sleeps...",
-    description: "Submit a report between midnight and 5 AM",
+    description: "Submit 5+ reports between midnight and 4 AM IST",
     icon: "Bird",
-    condition: "report_time_0_5",
-    reward: 100,
-    unlocked: true,
+    rarity: "rare",
+    pointsReward: 100,
   },
   {
-    id: "h2",
-    title: "Speed Demon",
-    hint: "Lightning fast...",
-    description: "Submit 3 reports within 10 minutes",
-    icon: "Zap",
-    condition: "3_reports_10min",
-    reward: 150,
-    unlocked: false,
+    id: "early_bird",
+    name: "Early Bird",
+    hint: "Catch the worm...",
+    description: "Submit 3+ reports between 5 and 8 AM IST",
+    icon: "Sunrise",
+    rarity: "rare",
+    pointsReward: 100,
   },
   {
-    id: "h3",
-    title: "The Perfectionist",
-    hint: "Every detail matters...",
-    description:
-      "Submit a report with photo, notes, severity, and recurring flag",
-    icon: "Gem",
-    condition: "full_detail_report",
-    reward: 200,
-    unlocked: false,
+    id: "fibonacci_filer",
+    name: "Fibonacci Filer",
+    hint: "There's a pattern in numbers...",
+    description: "Have a total report count equal to a Fibonacci number",
+    icon: "Spiral",
+    rarity: "epic",
+    pointsReward: 75,
   },
   {
-    id: "h4",
-    title: "Wanderer",
-    hint: "Not all who wander are lost...",
-    description: "Report in 5 different zones in a single day",
+    id: "category_collector",
+    name: "Category Collector",
+    hint: "A jack of all trades...",
+    description: "Report in all 6 violation categories",
+    icon: "Layers",
+    rarity: "rare",
+    pointsReward: 200,
+  },
+  {
+    id: "zone_nomad",
+    name: "Zone Nomad",
+    hint: "Always exploring...",
+    description: "Submit reports from 10+ distinct zones",
     icon: "Compass",
-    condition: "5_zones_1_day",
-    reward: 300,
-    unlocked: false,
+    rarity: "epic",
+    pointsReward: 300,
   },
   {
-    id: "h5",
-    title: "The Founder",
-    hint: "From the very beginning...",
-    description: "Be among the first 100 users to sign up",
-    icon: "Flag",
-    condition: "first_100_users",
-    reward: 500,
-    unlocked: false,
+    id: "perfect_streak",
+    name: "The Perfectionist",
+    hint: "Consistency is everything...",
+    description: "Hit a 7-day report streak",
+    icon: "Flame",
+    rarity: "rare",
+    pointsReward: 150,
   },
   {
-    id: "h6",
-    title: "Weekend Warrior",
-    hint: "While others rest...",
-    description: "Submit reports every weekend for a month",
-    icon: "Swords",
-    condition: "4_weekends_active",
-    reward: 250,
-    unlocked: false,
+    id: "century_club",
+    name: "Centurion",
+    hint: "Triple digits await...",
+    description: "Submit 100 reports lifetime",
+    icon: "Award",
+    rarity: "legendary",
+    pointsReward: 500,
+  },
+  {
+    id: "approval_ace",
+    name: "Approval Ace",
+    hint: "Quality over quantity...",
+    description: "95%+ approval rate with at least 20 reports submitted",
+    icon: "ShieldCheck",
+    rarity: "epic",
+    pointsReward: 400,
   },
 ];

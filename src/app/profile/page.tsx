@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Trophy, MapPin, Award, Star, Flame, BarChart3, Palette, ChevronRight, Users } from 'lucide-react';
+import { Trophy, MapPin, Award, Star, Flame, BarChart3, Palette, ChevronRight, Users, FileText } from 'lucide-react';
 import GameIcon from "@/components/GameIcon";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -111,6 +111,21 @@ export default function ProfilePage() {
             <span className="text-xs text-zinc-500 uppercase tracking-widest">Approved</span>
           </Card>
         </div>
+
+        {/* View Complaints */}
+        <Link
+          href="/complaints"
+          className="flex items-center justify-between p-4 bg-zinc-900 border border-zinc-800 rounded-2xl hover:border-zinc-600 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <FileText className="w-5 h-5 text-blue-400" />
+            <div>
+              <p className="text-sm font-bold">View All Complaints</p>
+              <p className="text-xs text-zinc-500">Nearby · City · Yours</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-zinc-500" />
+        </Link>
 
         {/* Mayorship */}
         {userStats.mayorship !== 'None' && (
